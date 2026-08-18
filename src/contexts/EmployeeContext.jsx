@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import sanctionedPosts from '../data/sanctionedPosts.json';
 import { reconcileVacancies } from '../utils/reconcileVacancies';
-
+import { syncEmployeesToFirestore, subscribeToEmployeesFirestore } from '../firebase';
 
 const EmployeeContext = createContext();
 
@@ -59,22 +59,21 @@ export const EmployeeProvider = ({ children }) => {
     if (!localStorage.getItem('wiped_once_123')) {
         localStorage.removeItem('uppcl_employees_data');
         localStorage.setItem('wiped_once_123', 'true');
-        fetch('/api/employees', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '[]' });
+        fetch('/api/employees', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '[]' }).catch(() => {});
     }
     
-    // We prioritize localStorage as the primary source of truth. 
-    // We only fetch from API if localStorage is empty.
+    const allSanctionedPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
+
+    // 1. Initial load from localStorage / local API as fallback
     const saved = localStorage.getItem('uppcl_employees_data');
     let localData = null;
     if (saved) {
       try { localData = JSON.parse(saved); } catch (e) {}
     }
 
-    const allSanctionedPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
-
     if (localData && localData.length > 0) {
-       setEmployees(reconcileVacancies(localData, allSanctionedPosts));
-       setIsLoaded(true);
+      setEmployees(reconcileVacancies(localData, allSanctionedPosts));
+      setIsLoaded(true);
     } else {
       fetch('/api/employees')
         .then(res => res.json())
@@ -86,24 +85,42 @@ export const EmployeeProvider = ({ children }) => {
           }
           setIsLoaded(true);
         })
-        .catch(err => {
-          console.error(err);
+        .catch(() => {
           setEmployees(reconcileVacancies([], allSanctionedPosts));
           setIsLoaded(true);
         });
     }
+
+    // 2. Real-time Firebase Firestore cloud sync listener
+    const unsubscribe = subscribeToEmployeesFirestore((cloudEmployees) => {
+      if (cloudEmployees && Array.isArray(cloudEmployees)) {
+        console.log("Real-time cloud sync received:", cloudEmployees.length, "records");
+        const allPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
+        setEmployees(reconcileVacancies(cloudEmployees, allPosts));
+        setIsLoaded(true);
+      }
+    });
+
+    return () => {
+      if (typeof unsubscribe === 'function') unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
     if (isLoaded) {
+      // Sync to local json API if available
       fetch('/api/employees', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(employees)
-      }).catch(e => console.error(e));
+      }).catch(() => {});
       
-      // Also sync to localStorage for janshakti.html static iframe to read
+      // Sync to localStorage
       localStorage.setItem('uppcl_employees_data', JSON.stringify(employees));
+
+      // Sync active employees to Google Cloud Firestore (skip dummy vacant entries to keep cloud DB super clean & fast)
+      const activeOnly = employees.filter(e => e.status !== 'Vacant' && (e.name || '').toUpperCase() !== 'VACANT');
+      syncEmployeesToFirestore(activeOnly);
     }
   }, [employees, isLoaded]);
 
