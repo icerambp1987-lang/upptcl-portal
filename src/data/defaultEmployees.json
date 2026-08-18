@@ -43,5 +43,20 @@
     "officeName": "CE (TSW), Agra",
     "status": "Active",
     "isSanctioned": true
+  },
+  {
+    "id": "11007450",
+    "name": "Puneet Gupta",
+    "nameHi": "पुनीत गुप्ता",
+    "internalId": "11007450",
+    "empIdStr": "",
+    "auditNo": "-",
+    "desig": "Chief Engineer (L-I/II) (E&M)",
+    "dept": "UPPTCL",
+    "office": "ZONE",
+    "zone": "North-East, Gorakhpur",
+    "officeName": "CE (TNE), Gorakhpur",
+    "status": "Active",
+    "isSanctioned": true
   }
 ]
