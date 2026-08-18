@@ -122,14 +122,20 @@ const AdminPanel = () => {
             {lang === 'hi' ? 'मास्टर डेटा, कर्मचारी प्रबंधन एवं जन शक्ति पोर्टल नियंत्रण' : 'Master Data, Employee Management & Manpower Portal Control'}
           </p>
         </div>
-        <button 
-          className="btn btn-outline-danger btn-sm d-flex align-items-center gap-2 fw-semibold px-3 py-2 rounded-pill shadow-sm"
-          onClick={handleLockAdmin}
-          title={lang === 'hi' ? 'एडमिन पैनल लॉक करें' : 'Lock Admin Panel'}
-        >
-          <Lock size={15} />
-          {lang === 'hi' ? 'पैनल लॉक करें' : 'Lock Panel'}
-        </button>
+        <div className="d-flex align-items-center gap-2">
+          <div className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill d-flex align-items-center gap-1">
+            <span className="spinner-grow spinner-grow-sm text-success" style={{ width: '8px', height: '8px' }}></span>
+            <span>Google Cloud Live</span>
+          </div>
+          <button 
+            className="btn btn-outline-danger btn-sm d-flex align-items-center gap-2 fw-semibold px-3 py-2 rounded-pill shadow-sm"
+            onClick={handleLockAdmin}
+            title={lang === 'hi' ? 'एडमिन पैनल लॉक करें' : 'Lock Admin Panel'}
+          >
+            <Lock size={15} />
+            {lang === 'hi' ? 'पैनल लॉक करें' : 'Lock Panel'}
+          </button>
+        </div>
       </div>
 
       {/* Navigation Tabs inside Admin Panel */}
