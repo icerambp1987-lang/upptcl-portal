@@ -30,6 +30,21 @@
     "isSanctioned": true
   },
   {
+    "id": "11007189",
+    "name": "Shubhendu Pratap Singh",
+    "nameHi": "शुभेंदु प्रताप सिंह",
+    "internalId": "11007189",
+    "empIdStr": "",
+    "auditNo": "-",
+    "desig": "Chief Engineer (L-I/II) (E&M)",
+    "dept": "UPPTCL",
+    "office": "ZONE",
+    "zone": "South-East, Prayagraj",
+    "officeName": "CE (TSE), Prayagraj",
+    "status": "Active",
+    "isSanctioned": true
+  },
+  {
     "id": "11000237",
     "name": "Anil Kumar",
     "nameHi": "अनिल कुमार",

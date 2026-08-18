@@ -2,6 +2,12 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import sanctionedPosts from '../data/sanctionedPosts.json';
 import defaultEmpsList from '../data/defaultEmployees.json';
 import { reconcileVacancies } from '../utils/reconcileVacancies';
+import { 
+  saveEmployeeToFirestore, 
+  saveMultipleEmployeesToFirestore, 
+  deleteEmployeeFromFirestore, 
+  subscribeToEmployeesFirestore 
+} from '../firebase';
 
 const EmployeeContext = createContext();
 
@@ -55,7 +61,7 @@ export const EmployeeProvider = ({ children }) => {
   useEffect(() => {
     const allSanctionedPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
 
-    // 1. Initial load from local storage
+    // 1. Initial instant load from localStorage or default baseline
     const saved = localStorage.getItem('uppcl_employees_data');
     let localData = [];
     if (saved) {
@@ -65,22 +71,37 @@ export const EmployeeProvider = ({ children }) => {
       } catch (e) {}
     }
 
-    // Filter valid active officers that have proper dept/zone
-    const validActiveLocal = localData.filter(e => e && e.status !== 'Vacant' && (e.name || '').toUpperCase() !== 'VACANT' && e.dept && e.zone);
-    
-    // Always use full defaultEmpsList if local storage is missing valid officers or was corrupted
-    const baseList = validActiveLocal.length >= defaultEmpsList.length ? validActiveLocal : defaultEmpsList;
-    
-    const reconciled = reconcileVacancies(baseList, allSanctionedPosts);
-    setEmployees(reconciled);
-    localStorage.setItem('uppcl_employees_data', JSON.stringify(reconciled));
+    const activeInLocal = localData.filter(e => e && e.status !== 'Vacant' && (e.name || '').toUpperCase() !== 'VACANT');
+    const baseList = activeInLocal.length >= defaultEmpsList.length ? activeInLocal : defaultEmpsList;
+    setEmployees(reconcileVacancies(baseList, allSanctionedPosts));
     setIsLoaded(true);
+
+    // 2. Real-time Firebase Firestore multi-user collection sync
+    const unsubscribe = subscribeToEmployeesFirestore((cloudEmployees) => {
+      console.log("Firestore cloud live sync received:", cloudEmployees ? cloudEmployees.length : 0, "employees");
+      if (cloudEmployees && cloudEmployees.length > 0) {
+        const activeCloud = cloudEmployees.filter(e => e && e.status !== 'Vacant' && (e.name || '').toUpperCase() !== 'VACANT');
+        const reconciled = reconcileVacancies(activeCloud, allSanctionedPosts);
+        setEmployees(reconciled);
+        localStorage.setItem('uppcl_employees_data', JSON.stringify(reconciled));
+      } else {
+        // If firestore is fresh/empty, seed all baseline employees to cloud
+        saveMultipleEmployeesToFirestore(defaultEmpsList);
+      }
+    });
+
+    return () => {
+      if (typeof unsubscribe === 'function') unsubscribe();
+    };
   }, []);
 
   const addEmployee = (emp) => {
     const newId = emp.id && !emp.id.startsWith('VAC-') ? emp.id : (Date.now().toString() + '-' + Math.random().toString(36).substring(2, 6));
     const newEmp = { ...emp, id: newId };
     
+    // Save directly to Firestore Cloud Database
+    saveEmployeeToFirestore(newEmp);
+
     const allSanctionedPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
     setEmployees(prev => {
       const activeFiltered = prev.filter(e => e.status !== 'Vacant' && (e.name || '').toUpperCase() !== 'VACANT' && e.id !== newId);
@@ -95,6 +116,9 @@ export const EmployeeProvider = ({ children }) => {
     const finalId = (id && !id.startsWith('VAC-')) ? id : (Date.now().toString() + '-' + Math.random().toString(36).substring(2, 6));
     const empWithId = { ...updatedEmp, id: finalId };
     
+    // Save directly to Firestore Cloud Database
+    saveEmployeeToFirestore(empWithId);
+
     const allSanctionedPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
     setEmployees(prev => {
       const activeFiltered = prev.filter(e => e.status !== 'Vacant' && (e.name || '').toUpperCase() !== 'VACANT' && e.id !== id && e.id !== finalId);
@@ -106,6 +130,9 @@ export const EmployeeProvider = ({ children }) => {
   };
 
   const deleteEmployee = (id) => {
+    // Delete directly from Firestore Cloud Database
+    deleteEmployeeFromFirestore(id);
+
     const allSanctionedPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
     setEmployees(prev => {
       const activeFiltered = prev.filter(e => e.status !== 'Vacant' && (e.name || '').toUpperCase() !== 'VACANT' && e.id !== id);
@@ -120,6 +147,9 @@ export const EmployeeProvider = ({ children }) => {
       id: (emp.id && !emp.id.startsWith('VAC-')) ? emp.id : (Date.now().toString() + '-' + idx + '-' + Math.random().toString(36).substring(2, 5)), 
       ...emp 
     }));
+
+    // Save batch directly to Firestore Cloud Database
+    saveMultipleEmployeesToFirestore(newEmps);
 
     const allSanctionedPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
     setEmployees(prev => {
