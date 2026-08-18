@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, doc, setDoc, onSnapshot, getDoc } from "firebase/firestore";
+import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAuNKiDa6gwA-bEmJ7gW4xwUPjkcdBjLd8",
@@ -15,29 +15,54 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 
-// Helper to sync employees with Firestore
-export const syncEmployeesToFirestore = async (employees) => {
+// Save or Update an individual employee directly in Firestore
+export const saveEmployeeToFirestore = async (emp) => {
   try {
-    const docRef = doc(db, "portal_data", "employees_master");
-    await setDoc(docRef, { data: employees, lastUpdated: Date.now() }, { merge: true });
+    if (!emp || !emp.id) return;
+    const docRef = doc(db, "employees", String(emp.id));
+    await setDoc(docRef, { ...emp, _updatedAt: Date.now() }, { merge: true });
   } catch (error) {
-    console.error("Firestore sync error:", error);
+    console.error("Firestore saveEmployee error:", error);
   }
 };
 
-// Helper to listen for real-time updates
+// Save multiple employees (e.g. bulk CSV upload)
+export const saveMultipleEmployeesToFirestore = async (empList) => {
+  try {
+    for (const emp of empList) {
+      if (emp && emp.id) {
+        const docRef = doc(db, "employees", String(emp.id));
+        await setDoc(docRef, { ...emp, _updatedAt: Date.now() }, { merge: true });
+      }
+    }
+  } catch (error) {
+    console.error("Firestore saveMultiple error:", error);
+  }
+};
+
+// Delete employee from Firestore
+export const deleteEmployeeFromFirestore = async (id) => {
+  try {
+    if (!id) return;
+    const docRef = doc(db, "employees", String(id));
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error("Firestore delete error:", error);
+  }
+};
+
+// Real-time listener for the entire employees collection
 export const subscribeToEmployeesFirestore = (callback) => {
   try {
-    const docRef = doc(db, "portal_data", "employees_master");
-    return onSnapshot(docRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const cloudData = docSnap.data();
-        if (cloudData && Array.isArray(cloudData.data)) {
-          callback(cloudData.data);
-        }
-      }
+    const colRef = collection(db, "employees");
+    return onSnapshot(colRef, (snapshot) => {
+      const list = [];
+      snapshot.forEach((doc) => {
+        list.push(doc.data());
+      });
+      callback(list);
     }, (error) => {
-      console.warn("Firestore subscription notice:", error);
+      console.warn("Firestore collection subscription notice:", error);
     });
   } catch (e) {
     console.error("Firestore subscription error:", e);
