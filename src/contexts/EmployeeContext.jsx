@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import sanctionedPosts from '../data/sanctionedPosts.json';
 import { reconcileVacancies } from '../utils/reconcileVacancies';
 import { syncEmployeesToFirestore, subscribeToEmployeesFirestore } from '../firebase';
@@ -12,6 +12,8 @@ const defaultEmployees = [];
 export const EmployeeProvider = ({ children }) => {
   const [employees, setEmployees] = useState(defaultEmployees);
   const [isLoaded, setIsLoaded] = useState(false);
+  const isIncomingFromCloud = useRef(false);
+  const lastUploadedJson = useRef('');
 
   // Helper to dynamically generate EE sanctioned posts from Hierarchy Master Data
   const getDynamicEESanctionedPosts = () => {
@@ -55,26 +57,20 @@ export const EmployeeProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    // FORCE WIPE DATA AS REQUESTED BY USER
-    if (!localStorage.getItem('wiped_once_123')) {
-        localStorage.removeItem('uppcl_employees_data');
-        localStorage.setItem('wiped_once_123', 'true');
-        fetch('/api/employees', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '[]' }).catch(() => {});
-    }
-    
-    const allSanctionedPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
-
-    // 1. Initial load from localStorage / local API as fallback
+    // 1. Initial load from localStorage
     const saved = localStorage.getItem('uppcl_employees_data');
     let localData = null;
     if (saved) {
       try { localData = JSON.parse(saved); } catch (e) {}
     }
 
+    const allSanctionedPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
+
     if (localData && localData.length > 0) {
       setEmployees(reconcileVacancies(localData, allSanctionedPosts));
       setIsLoaded(true);
     } else {
+      // Try local JSON API
       fetch('/api/employees')
         .then(res => res.json())
         .then(data => {
@@ -91,13 +87,17 @@ export const EmployeeProvider = ({ children }) => {
         });
     }
 
-    // 2. Real-time Firebase Firestore cloud sync listener
+    // 2. Real-time Firebase Firestore cloud sync listener (Debounced & Safe)
     const unsubscribe = subscribeToEmployeesFirestore((cloudEmployees) => {
       if (cloudEmployees && Array.isArray(cloudEmployees)) {
-        console.log("Real-time cloud sync received:", cloudEmployees.length, "records");
-        const allPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
-        setEmployees(reconcileVacancies(cloudEmployees, allPosts));
-        setIsLoaded(true);
+        const cloudStr = JSON.stringify(cloudEmployees);
+        if (cloudStr !== lastUploadedJson.current) {
+          isIncomingFromCloud.current = true;
+          lastUploadedJson.current = cloudStr;
+          const allPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
+          setEmployees(reconcileVacancies(cloudEmployees, allPosts));
+          setIsLoaded(true);
+        }
       }
     });
 
@@ -108,7 +108,7 @@ export const EmployeeProvider = ({ children }) => {
 
   useEffect(() => {
     if (isLoaded) {
-      // Sync to local json API if available
+      // Sync to local json API if on dev server
       fetch('/api/employees', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -118,9 +118,19 @@ export const EmployeeProvider = ({ children }) => {
       // Sync to localStorage
       localStorage.setItem('uppcl_employees_data', JSON.stringify(employees));
 
-      // Sync active employees to Google Cloud Firestore (skip dummy vacant entries to keep cloud DB super clean & fast)
+      // Check if update came from cloud to avoid infinite echo loop
+      if (isIncomingFromCloud.current) {
+        isIncomingFromCloud.current = false;
+        return;
+      }
+
+      // Sync active employees to Cloud Firestore only if changed locally
       const activeOnly = employees.filter(e => e.status !== 'Vacant' && (e.name || '').toUpperCase() !== 'VACANT');
-      syncEmployeesToFirestore(activeOnly);
+      const activeStr = JSON.stringify(activeOnly);
+      if (activeStr !== lastUploadedJson.current) {
+        lastUploadedJson.current = activeStr;
+        syncEmployeesToFirestore(activeOnly);
+      }
     }
   }, [employees, isLoaded]);
 
