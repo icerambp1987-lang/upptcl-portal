@@ -1,9 +1,10 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "firebase/firestore";
+import { getDatabase, ref, set, remove, onValue, get } from "firebase/database";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAuNkIda6gwA-bEmJ7gW4xWUPjkcdBjLd8",
   authDomain: "upptcl-portal.firebaseapp.com",
+  databaseURL: "https://upptcl-portal-default-rtdb.firebaseio.com",
   projectId: "upptcl-portal",
   storageBucket: "upptcl-portal.firebasestorage.app",
   messagingSenderId: "354880197422",
@@ -11,19 +12,20 @@ const firebaseConfig = {
   measurementId: "G-LZPH2XN1CP"
 };
 
-// Initialize Firebase App
+// Initialize Firebase App with Realtime Database (Unlimited free daily operations)
 const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
+export const rtdb = getDatabase(app);
 
-// Save or Update an individual employee directly in Firestore
+// Save or Update an individual employee directly in Realtime Database
 export const saveEmployeeToFirestore = async (emp) => {
   try {
     if (!emp || !emp.id) return;
-    const docRef = doc(db, "employees", String(emp.id));
-    await setDoc(docRef, { ...emp, _updatedAt: Date.now() }, { merge: true });
-    console.log("Successfully synced employee to Firestore:", emp.id);
+    const cleanId = String(emp.id).replace(/[.#$\[\]]/g, '_');
+    const empRef = ref(rtdb, 'employees/' + cleanId);
+    await set(empRef, { ...emp, _updatedAt: Date.now() });
+    console.log("Successfully synced employee to Cloud RTDB:", emp.id);
   } catch (error) {
-    console.error("Firestore saveEmployee error:", error);
+    console.error("Cloud saveEmployee error:", error);
   }
 };
 
@@ -32,42 +34,42 @@ export const saveMultipleEmployeesToFirestore = async (empList) => {
   try {
     for (const emp of empList) {
       if (emp && emp.id) {
-        const docRef = doc(db, "employees", String(emp.id));
-        await setDoc(docRef, { ...emp, _updatedAt: Date.now() }, { merge: true });
+        const cleanId = String(emp.id).replace(/[.#$\[\]]/g, '_');
+        const empRef = ref(rtdb, 'employees/' + cleanId);
+        await set(empRef, { ...emp, _updatedAt: Date.now() });
       }
     }
   } catch (error) {
-    console.error("Firestore saveMultiple error:", error);
+    console.error("Cloud saveMultiple error:", error);
   }
 };
 
-// Delete employee from Firestore
+// Delete employee from Cloud
 export const deleteEmployeeFromFirestore = async (id) => {
   try {
     if (!id) return;
-    const docRef = doc(db, "employees", String(id));
-    await deleteDoc(docRef);
+    const cleanId = String(id).replace(/[.#$\[\]]/g, '_');
+    const empRef = ref(rtdb, 'employees/' + cleanId);
+    await remove(empRef);
   } catch (error) {
-    console.error("Firestore delete error:", error);
+    console.error("Cloud delete error:", error);
   }
 };
 
-// Real-time listener for the entire employees collection
+// Real-time instant live listener for all connected computers
 export const subscribeToEmployeesFirestore = (callback) => {
   try {
-    const colRef = collection(db, "employees");
-    return onSnapshot(colRef, (snapshot) => {
-      const list = [];
-      snapshot.forEach((doc) => {
-        list.push(doc.data());
-      });
-      console.log("Firestore onSnapshot update count:", list.length);
+    const empsRef = ref(rtdb, 'employees');
+    return onValue(empsRef, (snapshot) => {
+      const val = snapshot.val();
+      const list = val ? Object.values(val) : [];
+      console.log("Cloud RTDB update count:", list.length);
       callback(list);
     }, (error) => {
-      console.warn("Firestore collection subscription notice:", error);
+      console.warn("Cloud RTDB subscription notice:", error);
     });
   } catch (e) {
-    console.error("Firestore subscription error:", e);
+    console.error("Cloud subscription error:", e);
     return () => {};
   }
 };

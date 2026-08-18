@@ -435,13 +435,14 @@ const EmployeeMaster = () => {
       }
       
       const parsedEmployees = [];
-      // Start from row 1, skipping header
+      const headerLine = lines[0].toLowerCase();
+      const isExportFormat = headerLine.includes('name (hindi)') || headerLine.includes('audit no');
+
       for (let i = 1; i < lines.length; i++) {
         const line = lines[i].trim();
         if (!line) continue;
         
-        // Simple CSV parse (ignores commas inside quotes for now, assuming simple entries)
-                const cols = [];
+        const cols = [];
         let col = '';
         let inQuotes = false;
         for (let j = 0; j < line.length; j++) {
@@ -455,31 +456,70 @@ const EmployeeMaster = () => {
             }
         }
         cols.push(col);
-        if (cols.length < 18) continue;
-        
-        parsedEmployees.push({
-          name: cols[0]?.trim() || '',
-          nameHi: '',
-          internalId: cols[1]?.trim() || 'N/A',
-          empIdStr: 'N/A',
-          auditNo: cols[2]?.trim() || '-',
-          dob: cols[3]?.trim() || '',
-          dor: cols[4]?.trim() || '',
-          dept: cols[5]?.trim() || 'UPPTCL',
-          desig: cols[6]?.trim() || '',
-          status: cols[7]?.trim() || 'Active',
-          office: cols[8]?.trim() === 'ZONE' ? 'ZONE' : (cols[8]?.trim() ? 'ZONE' : 'HQ'),
-          zone: cols[8]?.trim() || '',
-          circle: cols[9]?.trim() || '',
-          division: cols[10]?.trim() || '',
-          subdivision: cols[11]?.trim() || '',
-          officeName: cols[12]?.trim() || '',
-          doj: cols[13]?.trim() || '',
-          tenure: cols[14]?.trim() || '',
-          cugNo: cols[15]?.trim() || '',
-          omNo: cols[16]?.trim() || '',
-          chargeType: cols[17]?.trim() || 'Main'
-        });
+
+        if (isExportFormat) {
+          // Format from 'Export List': ['Zone', 'Circle', 'Name', 'Name (Hindi)', 'SAP ID', 'ID', 'Audit No', 'Department', 'Designation', 'Status', 'Office', 'Division', 'Subdivision', 'DOB', 'DOR', 'Date of Posting', 'Tenure', 'Home District', 'CUG No', 'Mobile No', 'OM No', 'Caste', 'CPF/GPF No', 'Email']
+          const empName = cols[2]?.trim() || '';
+          if (!empName || empName.toUpperCase() === 'VACANT' || (cols[9]?.trim() === 'Vacant')) continue; // Skip Vacant rows!
+          
+          parsedEmployees.push({
+            zone: cols[0]?.trim() || '',
+            circle: cols[1]?.trim() || '',
+            name: empName.replace(/\s*\(Addi\.\)/gi, '').trim(),
+            nameHi: (cols[3]?.trim() || '').replace(/\s*\(अतिरिक्त\)/gi, '').trim(),
+            internalId: cols[4]?.trim() || 'N/A',
+            empIdStr: cols[5]?.trim() || '',
+            auditNo: cols[6]?.trim() || '-',
+            dept: cols[7]?.trim() || 'UPPTCL',
+            desig: cols[8]?.trim() || '',
+            status: 'Active',
+            office: cols[10]?.trim() || (cols[0]?.trim() ? 'ZONE' : 'HQ'),
+            division: cols[11]?.trim() || '',
+            subdivision: cols[12]?.trim() || '',
+            officeName: cols[1]?.trim() || '',
+            dob: cols[13]?.trim() || '',
+            dor: cols[14]?.trim() || '',
+            doj: cols[15]?.trim() || '',
+            tenure: cols[16]?.trim() || '',
+            homeDistrict: cols[17]?.trim() || '',
+            cugNo: cols[18]?.trim() || '',
+            mobNo: cols[19]?.trim() || '',
+            omNo: cols[20]?.trim() || '',
+            caste: cols[21]?.trim() || '',
+            cpfGpfNo: cols[22]?.trim() || '',
+            emailId: cols[23]?.trim() || '',
+            chargeType: (empName.includes('(Addi.)') || (cols[3]||'').includes('(अतिरिक्त)')) ? 'Additional' : 'Main'
+          });
+        } else {
+          // Format from 'Template': ['Name', 'SAP ID', 'Audit No', 'DOB', 'DOR', 'Department', 'Designation', 'Status', 'Zone', 'Circle', 'Division', 'Subdivision', 'Office Name', 'Date of Posting', 'Tenure', 'Mobile No', 'OM No', 'Charge Type']
+          if (cols.length < 7) continue;
+          const empName = cols[0]?.trim() || '';
+          if (!empName || empName.toUpperCase() === 'VACANT') continue;
+
+          parsedEmployees.push({
+            name: empName,
+            nameHi: '',
+            internalId: cols[1]?.trim() || 'N/A',
+            empIdStr: '',
+            auditNo: cols[2]?.trim() || '-',
+            dob: cols[3]?.trim() || '',
+            dor: cols[4]?.trim() || '',
+            dept: cols[5]?.trim() || 'UPPTCL',
+            desig: cols[6]?.trim() || '',
+            status: cols[7]?.trim() || 'Active',
+            office: cols[8]?.trim() === 'ZONE' ? 'ZONE' : (cols[8]?.trim() ? 'ZONE' : 'HQ'),
+            zone: cols[8]?.trim() || '',
+            circle: cols[9]?.trim() || '',
+            division: cols[10]?.trim() || '',
+            subdivision: cols[11]?.trim() || '',
+            officeName: cols[12]?.trim() || '',
+            doj: cols[13]?.trim() || '',
+            tenure: cols[14]?.trim() || '',
+            cugNo: cols[15]?.trim() || '',
+            omNo: cols[16]?.trim() || '',
+            chargeType: cols[17]?.trim() || 'Main'
+          });
+        }
       }
       
       if (parsedEmployees.length > 0 && addMultipleEmployees) {

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import sanctionedPosts from '../data/sanctionedPosts.json';
 import { reconcileVacancies } from '../utils/reconcileVacancies';
 import { 
@@ -17,7 +17,6 @@ const defaultEmployees = [];
 export const EmployeeProvider = ({ children }) => {
   const [employees, setEmployees] = useState(defaultEmployees);
   const [isLoaded, setIsLoaded] = useState(false);
-  const cloudListRef = useRef([]);
 
   // Helper to dynamically generate EE sanctioned posts from Hierarchy Master Data
   const getDynamicEESanctionedPosts = () => {
@@ -80,18 +79,10 @@ export const EmployeeProvider = ({ children }) => {
       console.log("Firestore cloud update received:", cloudEmployees ? cloudEmployees.length : 0, "employees");
       const allPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
       
-      if (cloudEmployees) {
-        cloudListRef.current = cloudEmployees;
-        
-        // Merge cloud records with any local active records so nothing is ever lost
-        const activeLocal = localData.filter(e => e.status !== 'Vacant' && (e.name || '').toUpperCase() !== 'VACANT');
-        const mergedMap = new Map();
-        
-        activeLocal.forEach(e => { if (e && e.id) mergedMap.set(e.id, e); });
-        cloudEmployees.forEach(e => { if (e && e.id) mergedMap.set(e.id, e); });
-        
-        const combined = Array.from(mergedMap.values());
-        const reconciled = reconcileVacancies(combined, allPosts);
+      // If cloud has records, ALWAYS adopt cloud records as single source of truth
+      if (cloudEmployees && cloudEmployees.length > 0) {
+        const activeCloud = cloudEmployees.filter(e => e && e.status !== 'Vacant' && (e.name || '').toUpperCase() !== 'VACANT');
+        const reconciled = reconcileVacancies(activeCloud, allPosts);
         setEmployees(reconciled);
         localStorage.setItem('uppcl_employees_data', JSON.stringify(reconciled));
         setIsLoaded(true);

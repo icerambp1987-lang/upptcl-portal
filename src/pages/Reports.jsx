@@ -706,28 +706,39 @@ return sortedZones.map(z => {
                                      <td className="text-center align-middle">
                                        <span className="fw-bold text-dark">{index + 1}</span>
                                      </td>
-                                     <td>
-                                       {[emp.circle, emp.division, emp.subdivision, emp.officeName]
-                                         .filter(Boolean)
-                                         .filter(val => !val.toString().includes('Select '))
-                                         .map((loc, idx) => {
-                                           const isCircleText = isEE && loc === emp.circle;
-                                           return (
-                                           <div key={idx} className={(idx===0 ? "fw-bold text-dark mb-1 d-flex flex-wrap align-items-center gap-1" : "text-muted small") + (isCircleText ? " d-print-none" : "")}>
-                                             <span>{loc}</span>
-                                             {['ERP, Lucknow', 'Operation, Lucknow', 'C&P, Lucknow'].includes(loc) && (
-                                               <span className="badge bg-warning text-dark border border-warning" style={{ fontSize: '0.65rem', padding: '0.2rem 0.4rem' }}>
-                                                 {lang === 'hi' ? 'अस्वीकृत पद' : 'Unsanctioned'}
-                                               </span>
-                                             )}
-                                           </div>
-                                         )})}
-                                       {![emp.circle, emp.division, emp.subdivision, emp.officeName]
-                                         .filter(Boolean)
-                                         .filter(val => !val.toString().includes('Select ')).length && (
-                                           <div className="fw-bold text-dark mb-1">{emp.zone || '-'}</div>
-                                         )}
-                                     </td>
+                                      <td>
+                                        {(() => {
+                                          const rawLocs = [emp.circle, emp.division, emp.subdivision, emp.officeName, emp.zone]
+                                            .filter(Boolean)
+                                            .filter(val => !val.toString().includes('Select '));
+                                          
+                                          const uniqueLocs = [];
+                                          rawLocs.forEach(item => {
+                                            const trimmed = item.trim();
+                                            if (trimmed && !uniqueLocs.some(u => u.toLowerCase() === trimmed.toLowerCase())) {
+                                              uniqueLocs.push(trimmed);
+                                            }
+                                          });
+
+                                          if (uniqueLocs.length === 0) {
+                                            return <div className="fw-bold text-dark mb-1">-</div>;
+                                          }
+
+                                          return uniqueLocs.map((loc, idx) => {
+                                            const isCircleText = isEE && loc === emp.circle;
+                                            return (
+                                              <div key={idx} className={(idx === 0 ? "fw-bold text-dark mb-1 d-flex flex-wrap align-items-center gap-1" : "text-muted small") + (isCircleText ? " d-print-none" : "")}>
+                                                <span>{loc}</span>
+                                                {['ERP, Lucknow', 'Operation, Lucknow', 'C&P, Lucknow'].includes(loc) && (
+                                                  <span className="badge bg-warning text-dark border border-warning" style={{ fontSize: '0.65rem', padding: '0.2rem 0.4rem' }}>
+                                                    {lang === 'hi' ? 'अस्वीकृत पद' : 'Unsanctioned'}
+                                                  </span>
+                                                )}
+                                              </div>
+                                            );
+                                          });
+                                        })()}
+                                      </td>
                                      <td>
                                        <div className="fw-bold text-dark mb-1">{emp.name}</div>
                                        {lang === 'hi' && emp.nameHi && <div className="text-muted small mb-1">{emp.nameHi}</div>}
