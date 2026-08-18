@@ -1,0 +1,47 @@
+[
+  {
+    "id": "11007397",
+    "name": "Niraj Goel",
+    "nameHi": "नीरज गोयल",
+    "internalId": "11007397",
+    "empIdStr": "2000009",
+    "auditNo": "-",
+    "desig": "Chief Engineer (L-I/II) (E&M)",
+    "dept": "UPPTCL",
+    "office": "HQ",
+    "zone": "Hq, Lucknow",
+    "officeName": "Hq, Lucknow",
+    "status": "Active",
+    "isSanctioned": true
+  },
+  {
+    "id": "11007198",
+    "name": "Satendra Singh",
+    "nameHi": "सतेन्द्र सिंह",
+    "internalId": "11007198",
+    "empIdStr": "",
+    "auditNo": "-",
+    "desig": "Chief Engineer (L-I/II) (E&M)",
+    "dept": "UPPTCL",
+    "office": "ZONE",
+    "zone": "West-Meerut",
+    "officeName": "CE (TW), Meerut",
+    "status": "Active",
+    "isSanctioned": true
+  },
+  {
+    "id": "11000237",
+    "name": "Anil Kumar",
+    "nameHi": "अनिल कुमार",
+    "internalId": "11000237",
+    "empIdStr": "",
+    "auditNo": "-",
+    "desig": "Chief Engineer (L-I/II) (E&M)",
+    "dept": "UPPTCL",
+    "office": "ZONE",
+    "zone": "South-West, Agra",
+    "officeName": "CE (TSW), Agra",
+    "status": "Active",
+    "isSanctioned": true
+  }
+]

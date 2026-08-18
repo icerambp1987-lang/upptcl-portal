@@ -1,21 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import sanctionedPosts from '../data/sanctionedPosts.json';
+import defaultEmpsList from '../data/defaultEmployees.json';
 import { reconcileVacancies } from '../utils/reconcileVacancies';
-import { 
-  saveEmployeeToFirestore, 
-  saveMultipleEmployeesToFirestore, 
-  deleteEmployeeFromFirestore, 
-  subscribeToEmployeesFirestore 
-} from '../firebase';
 
 const EmployeeContext = createContext();
 
 export const useEmployee = () => useContext(EmployeeContext);
 
-const defaultEmployees = [];
-
 export const EmployeeProvider = ({ children }) => {
-  const [employees, setEmployees] = useState(defaultEmployees);
+  const [employees, setEmployees] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Helper to dynamically generate EE sanctioned posts from Hierarchy Master Data
@@ -60,48 +53,32 @@ export const EmployeeProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    // 1. Initial load from localStorage (instant display)
+    // 1. Initial load: Read from localStorage or use default base officers
     const saved = localStorage.getItem('uppcl_employees_data');
     let localData = [];
     if (saved) {
       try { 
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) localData = parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) localData = parsed;
       } catch (e) {}
     }
 
+    // If local storage has no active employees, seed with default active employees
+    const activeInLocal = localData.filter(e => e && e.status !== 'Vacant' && (e.name || '').toUpperCase() !== 'VACANT');
+    const baseList = activeInLocal.length > 0 ? activeInLocal : defaultEmpsList;
+
     const allSanctionedPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
-    setEmployees(reconcileVacancies(localData, allSanctionedPosts));
+    const reconciled = reconcileVacancies(baseList, allSanctionedPosts);
+    
+    setEmployees(reconciled);
+    localStorage.setItem('uppcl_employees_data', JSON.stringify(reconciled));
     setIsLoaded(true);
-
-    // 2. Real-time Firebase Firestore multi-user collection sync
-    const unsubscribe = subscribeToEmployeesFirestore((cloudEmployees) => {
-      console.log("Firestore cloud update received:", cloudEmployees ? cloudEmployees.length : 0, "employees");
-      const allPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
-      
-      // If cloud has records, ALWAYS adopt cloud records as single source of truth
-      if (cloudEmployees && cloudEmployees.length > 0) {
-        const activeCloud = cloudEmployees.filter(e => e && e.status !== 'Vacant' && (e.name || '').toUpperCase() !== 'VACANT');
-        const reconciled = reconcileVacancies(activeCloud, allPosts);
-        setEmployees(reconciled);
-        localStorage.setItem('uppcl_employees_data', JSON.stringify(reconciled));
-        setIsLoaded(true);
-      }
-    });
-
-    return () => {
-      if (typeof unsubscribe === 'function') unsubscribe();
-    };
   }, []);
 
   const addEmployee = (emp) => {
     const newId = emp.id && !emp.id.startsWith('VAC-') ? emp.id : (Date.now().toString() + '-' + Math.random().toString(36).substring(2, 6));
     const newEmp = { ...emp, id: newId };
     
-    // 1. Save directly to Google Cloud Firestore
-    saveEmployeeToFirestore(newEmp);
-
-    // 2. Immediate persistent local update
     const allSanctionedPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
     setEmployees(prev => {
       const activeFiltered = prev.filter(e => e.status !== 'Vacant' && (e.name || '').toUpperCase() !== 'VACANT' && e.id !== newId);
@@ -115,10 +92,6 @@ export const EmployeeProvider = ({ children }) => {
     const finalId = (id && !id.startsWith('VAC-')) ? id : (Date.now().toString() + '-' + Math.random().toString(36).substring(2, 6));
     const empWithId = { ...updatedEmp, id: finalId };
     
-    // 1. Save update directly to Google Cloud Firestore
-    saveEmployeeToFirestore(empWithId);
-
-    // 2. Immediate persistent local update
     const allSanctionedPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
     setEmployees(prev => {
       const activeFiltered = prev.filter(e => e.status !== 'Vacant' && (e.name || '').toUpperCase() !== 'VACANT' && e.id !== id && e.id !== finalId);
@@ -129,10 +102,6 @@ export const EmployeeProvider = ({ children }) => {
   };
 
   const deleteEmployee = (id) => {
-    // 1. Delete directly from Google Cloud Firestore
-    deleteEmployeeFromFirestore(id);
-
-    // 2. Immediate persistent local update
     const allSanctionedPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
     setEmployees(prev => {
       const activeFiltered = prev.filter(e => e.status !== 'Vacant' && (e.name || '').toUpperCase() !== 'VACANT' && e.id !== id);
@@ -148,10 +117,6 @@ export const EmployeeProvider = ({ children }) => {
       ...emp 
     }));
 
-    // 1. Save batch directly to Google Cloud Firestore
-    saveMultipleEmployeesToFirestore(newEmps);
-
-    // 2. Immediate persistent local update
     const allSanctionedPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
     setEmployees(prev => {
       const activeFiltered = prev.filter(e => e.status !== 'Vacant' && (e.name || '').toUpperCase() !== 'VACANT');
