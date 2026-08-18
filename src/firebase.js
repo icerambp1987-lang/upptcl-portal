@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "firebase/firestore";
+import { initializeFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAuNKiDa6gwA-bEmJ7gW4xwUPjkcdBjLd8",
@@ -11,9 +11,11 @@ const firebaseConfig = {
   measurementId: "G-LZPH2XN1CP"
 };
 
-// Initialize Firebase
+// Initialize Firebase with Long-Polling for 100% stable connection on all networks
 const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
+export const db = initializeFirestore(app, {
+  experimentalForceLongPolling: true,
+});
 
 // Save or Update an individual employee directly in Firestore
 export const saveEmployeeToFirestore = async (emp) => {
@@ -21,6 +23,7 @@ export const saveEmployeeToFirestore = async (emp) => {
     if (!emp || !emp.id) return;
     const docRef = doc(db, "employees", String(emp.id));
     await setDoc(docRef, { ...emp, _updatedAt: Date.now() }, { merge: true });
+    console.log("Successfully synced employee to Firestore:", emp.id);
   } catch (error) {
     console.error("Firestore saveEmployee error:", error);
   }
@@ -60,6 +63,7 @@ export const subscribeToEmployeesFirestore = (callback) => {
       snapshot.forEach((doc) => {
         list.push(doc.data());
       });
+      console.log("Firestore onSnapshot update count:", list.length);
       callback(list);
     }, (error) => {
       console.warn("Firestore collection subscription notice:", error);
