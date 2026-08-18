@@ -16,8 +16,13 @@ const Reports = () => {
       if (emp.status === 'Retired') return;
 
       const dept = emp.dept || 'Unknown Department';
-      const desig = (emp.desig || 'Unknown Designation').replace(/\s+/g, ' ').trim();
+      let desig = (emp.desig || 'Unknown Designation').replace(/\s+/g, ' ').trim();
       
+      // Normalize any Chief Engineer variant to unified standard designation
+      if (desig === 'Chief Engineer (L-I/II) (E&M)' || desig === 'Chief Engineer (L-I) (E&M)' || desig === 'Chief Engineer (L-II) (E&M)') {
+        desig = 'Chief Engineer (L-II)/Additional Secretary (E&M)';
+      }
+
       if (!groups[dept]) groups[dept] = {};
       if (!groups[dept][desig]) groups[dept][desig] = [];
       
