@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import sanctionedPosts from '../data/sanctionedPosts.json';
 import defaultEmpsList from '../data/defaultEmployees.json';
 import { reconcileVacancies } from '../utils/reconcileVacancies';
+import { fetchCloudEmployees, saveCloudEmployees } from '../services/cloudApi';
 
 const EmployeeContext = createContext();
 
@@ -53,7 +54,9 @@ export const EmployeeProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    // 1. Initial load: Read from localStorage or use default base officers
+    const allSanctionedPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
+
+    // 1. Instant load from local storage
     const saved = localStorage.getItem('uppcl_employees_data');
     let localData = [];
     if (saved) {
@@ -63,16 +66,25 @@ export const EmployeeProvider = ({ children }) => {
       } catch (e) {}
     }
 
-    // If local storage has no active employees, seed with default active employees
     const activeInLocal = localData.filter(e => e && e.status !== 'Vacant' && (e.name || '').toUpperCase() !== 'VACANT');
     const baseList = activeInLocal.length > 0 ? activeInLocal : defaultEmpsList;
-
-    const allSanctionedPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
-    const reconciled = reconcileVacancies(baseList, allSanctionedPosts);
-    
-    setEmployees(reconciled);
-    localStorage.setItem('uppcl_employees_data', JSON.stringify(reconciled));
+    setEmployees(reconcileVacancies(baseList, allSanctionedPosts));
     setIsLoaded(true);
+
+    // 2. Fetch fresh live data from Global Cloud Engine on mount & periodically
+    const syncFromCloud = async () => {
+      const cloudData = await fetchCloudEmployees();
+      if (cloudData && Array.isArray(cloudData) && cloudData.length > 0) {
+        console.log("Global Cloud sync received:", cloudData.length, "employees");
+        const reconciled = reconcileVacancies(cloudData, allSanctionedPosts);
+        setEmployees(reconciled);
+        localStorage.setItem('uppcl_employees_data', JSON.stringify(reconciled));
+      }
+    };
+
+    syncFromCloud();
+    const interval = setInterval(syncFromCloud, 10000); // Live poll cloud every 10s for instant multi-machine sync
+    return () => clearInterval(interval);
   }, []);
 
   const addEmployee = (emp) => {
@@ -82,7 +94,12 @@ export const EmployeeProvider = ({ children }) => {
     const allSanctionedPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
     setEmployees(prev => {
       const activeFiltered = prev.filter(e => e.status !== 'Vacant' && (e.name || '').toUpperCase() !== 'VACANT' && e.id !== newId);
-      const updatedList = reconcileVacancies([...activeFiltered, newEmp], allSanctionedPosts);
+      const updatedActive = [...activeFiltered, newEmp];
+      
+      // Save directly to Global Cloud REST Engine
+      saveCloudEmployees(updatedActive);
+
+      const updatedList = reconcileVacancies(updatedActive, allSanctionedPosts);
       localStorage.setItem('uppcl_employees_data', JSON.stringify(updatedList));
       return updatedList;
     });
@@ -95,7 +112,12 @@ export const EmployeeProvider = ({ children }) => {
     const allSanctionedPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
     setEmployees(prev => {
       const activeFiltered = prev.filter(e => e.status !== 'Vacant' && (e.name || '').toUpperCase() !== 'VACANT' && e.id !== id && e.id !== finalId);
-      const updatedList = reconcileVacancies([...activeFiltered, empWithId], allSanctionedPosts);
+      const updatedActive = [...activeFiltered, empWithId];
+      
+      // Save directly to Global Cloud REST Engine
+      saveCloudEmployees(updatedActive);
+
+      const updatedList = reconcileVacancies(updatedActive, allSanctionedPosts);
       localStorage.setItem('uppcl_employees_data', JSON.stringify(updatedList));
       return updatedList;
     });
@@ -105,6 +127,10 @@ export const EmployeeProvider = ({ children }) => {
     const allSanctionedPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
     setEmployees(prev => {
       const activeFiltered = prev.filter(e => e.status !== 'Vacant' && (e.name || '').toUpperCase() !== 'VACANT' && e.id !== id);
+      
+      // Save directly to Global Cloud REST Engine
+      saveCloudEmployees(activeFiltered);
+
       const updatedList = reconcileVacancies(activeFiltered, allSanctionedPosts);
       localStorage.setItem('uppcl_employees_data', JSON.stringify(updatedList));
       return updatedList;
@@ -120,7 +146,12 @@ export const EmployeeProvider = ({ children }) => {
     const allSanctionedPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
     setEmployees(prev => {
       const activeFiltered = prev.filter(e => e.status !== 'Vacant' && (e.name || '').toUpperCase() !== 'VACANT');
-      const updatedList = reconcileVacancies([...activeFiltered, ...newEmps], allSanctionedPosts);
+      const updatedActive = [...activeFiltered, ...newEmps];
+      
+      // Save directly to Global Cloud REST Engine
+      saveCloudEmployees(updatedActive);
+
+      const updatedList = reconcileVacancies(updatedActive, allSanctionedPosts);
       localStorage.setItem('uppcl_employees_data', JSON.stringify(updatedList));
       return updatedList;
     });

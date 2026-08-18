@@ -138,12 +138,9 @@ const AdminPanel = () => {
             className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill d-flex align-items-center gap-1 btn btn-sm"
             onClick={async () => {
               try {
-                const { ref, get } = await import('firebase/database');
-                const { rtdb } = await import('../firebase');
-                const snap = await get(ref(rtdb, 'employees'));
-                const val = snap.val();
-                const list = val ? Object.values(val) : [];
-                if (list.length > 0) {
+                const { fetchCloudEmployees } = await import('../services/cloudApi');
+                const list = await fetchCloudEmployees();
+                if (list && list.length > 0) {
                   localStorage.setItem('uppcl_employees_data', JSON.stringify(list));
                   window.location.reload();
                 } else {
@@ -156,7 +153,7 @@ const AdminPanel = () => {
             title={lang === 'hi' ? 'क्लाउड से डेटा सिंक करें' : 'Force Sync from Cloud'}
           >
             <span className="spinner-grow spinner-grow-sm text-success" style={{ width: '8px', height: '8px' }}></span>
-            <span>Google Cloud Live (Sync Now 🔄)</span>
+            <span>Global Cloud Live (Sync Now 🔄)</span>
           </button>
           <button 
             className="btn btn-outline-danger btn-sm d-flex align-items-center gap-2 fw-semibold px-3 py-2 rounded-pill shadow-sm"
