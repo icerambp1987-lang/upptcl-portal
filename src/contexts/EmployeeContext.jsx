@@ -17,6 +17,7 @@ const defaultEmployees = [];
 export const EmployeeProvider = ({ children }) => {
   const [employees, setEmployees] = useState(defaultEmployees);
   const [isLoaded, setIsLoaded] = useState(false);
+  const cloudListRef = useRef([]);
 
   // Helper to dynamically generate EE sanctioned posts from Hierarchy Master Data
   const getDynamicEESanctionedPosts = () => {
@@ -79,9 +80,18 @@ export const EmployeeProvider = ({ children }) => {
       console.log("Firestore cloud update received:", cloudEmployees ? cloudEmployees.length : 0, "employees");
       const allPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
       
-      // If cloud has records, reconcile with cloud
-      if (cloudEmployees && cloudEmployees.length > 0) {
-        const reconciled = reconcileVacancies(cloudEmployees, allPosts);
+      if (cloudEmployees) {
+        cloudListRef.current = cloudEmployees;
+        
+        // Merge cloud records with any local active records so nothing is ever lost
+        const activeLocal = localData.filter(e => e.status !== 'Vacant' && (e.name || '').toUpperCase() !== 'VACANT');
+        const mergedMap = new Map();
+        
+        activeLocal.forEach(e => { if (e && e.id) mergedMap.set(e.id, e); });
+        cloudEmployees.forEach(e => { if (e && e.id) mergedMap.set(e.id, e); });
+        
+        const combined = Array.from(mergedMap.values());
+        const reconciled = reconcileVacancies(combined, allPosts);
         setEmployees(reconciled);
         localStorage.setItem('uppcl_employees_data', JSON.stringify(reconciled));
         setIsLoaded(true);
@@ -97,10 +107,10 @@ export const EmployeeProvider = ({ children }) => {
     const newId = emp.id && !emp.id.startsWith('VAC-') ? emp.id : (Date.now().toString() + '-' + Math.random().toString(36).substring(2, 6));
     const newEmp = { ...emp, id: newId };
     
-    // Save directly to Google Cloud Firestore
+    // 1. Save directly to Google Cloud Firestore
     saveEmployeeToFirestore(newEmp);
 
-    // Optimistic local update & localStorage persistence
+    // 2. Immediate persistent local update
     const allSanctionedPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
     setEmployees(prev => {
       const activeFiltered = prev.filter(e => e.status !== 'Vacant' && (e.name || '').toUpperCase() !== 'VACANT' && e.id !== newId);
@@ -114,10 +124,10 @@ export const EmployeeProvider = ({ children }) => {
     const finalId = (id && !id.startsWith('VAC-')) ? id : (Date.now().toString() + '-' + Math.random().toString(36).substring(2, 6));
     const empWithId = { ...updatedEmp, id: finalId };
     
-    // Save update directly to Google Cloud Firestore
+    // 1. Save update directly to Google Cloud Firestore
     saveEmployeeToFirestore(empWithId);
 
-    // Optimistic local update & localStorage persistence
+    // 2. Immediate persistent local update
     const allSanctionedPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
     setEmployees(prev => {
       const activeFiltered = prev.filter(e => e.status !== 'Vacant' && (e.name || '').toUpperCase() !== 'VACANT' && e.id !== id && e.id !== finalId);
@@ -128,10 +138,10 @@ export const EmployeeProvider = ({ children }) => {
   };
 
   const deleteEmployee = (id) => {
-    // Delete directly from Google Cloud Firestore
+    // 1. Delete directly from Google Cloud Firestore
     deleteEmployeeFromFirestore(id);
 
-    // Optimistic local update & localStorage persistence
+    // 2. Immediate persistent local update
     const allSanctionedPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
     setEmployees(prev => {
       const activeFiltered = prev.filter(e => e.status !== 'Vacant' && (e.name || '').toUpperCase() !== 'VACANT' && e.id !== id);
@@ -147,10 +157,10 @@ export const EmployeeProvider = ({ children }) => {
       ...emp 
     }));
 
-    // Save batch directly to Google Cloud Firestore
+    // 1. Save batch directly to Google Cloud Firestore
     saveMultipleEmployeesToFirestore(newEmps);
 
-    // Optimistic local update & localStorage persistence
+    // 2. Immediate persistent local update
     const allSanctionedPosts = [...sanctionedPosts, ...getDynamicEESanctionedPosts()];
     setEmployees(prev => {
       const activeFiltered = prev.filter(e => e.status !== 'Vacant' && (e.name || '').toUpperCase() !== 'VACANT');
