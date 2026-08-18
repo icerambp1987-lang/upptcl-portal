@@ -46,9 +46,37 @@ const Reports = () => {
       const ce1Desig = 'Chief Engineer (L-I) (E&M)';
       const ce1List = groups['UPPTCL'][ce1Desig] || [];
 
+      const normStr = (s) => (s || '').toString().replace(/\s+/g, ' ').trim().toLowerCase();
+
       const isCEOccupied = (officeName, zoneName) => {
-        return ceList.some(e => (!officeName || e.officeName === officeName) && (!zoneName || e.zone === zoneName)) ||
-               ce1List.some(e => (!officeName || e.officeName === officeName) && (!zoneName || e.zone === zoneName));
+        const checkList = [...ceList, ...ce1List];
+        return checkList.some(e => {
+          if (e.status === 'Vacant' || normStr(e.name) === 'vacant') return false;
+          
+          if (officeName) {
+            const noff = normStr(officeName);
+            const eOff = normStr(e.officeName);
+            const eCirc = normStr(e.circle);
+            const eZone = normStr(e.zone);
+
+            if (eOff === noff || eCirc === noff || eZone === noff) return true;
+            if (noff.includes('hq') && (eOff.includes('hq') || eZone.includes('hq') || e.office === 'HQ')) return true;
+          }
+
+          if (zoneName) {
+            const nzone = normStr(zoneName);
+            const eZone = normStr(e.zone);
+            const eOff = normStr(e.officeName);
+            if (eZone === nzone || eOff.includes(nzone)) return true;
+            if (nzone.includes('meerut') && (eZone.includes('meerut') || eOff.includes('meerut'))) return true;
+            if (nzone.includes('agra') && (eZone.includes('agra') || eOff.includes('agra'))) return true;
+            if (nzone.includes('prayagraj') && (eZone.includes('prayagraj') || eOff.includes('prayagraj'))) return true;
+            if (nzone.includes('lucknow') && (eZone.includes('lucknow') || eOff.includes('lucknow'))) return true;
+            if (nzone.includes('gorakhpur') && (eZone.includes('gorakhpur') || eOff.includes('gorakhpur'))) return true;
+            if (nzone.includes('jhansi') && (eZone.includes('jhansi') || eOff.includes('jhansi'))) return true;
+          }
+          return false;
+        });
       };
 
       const hqCESanctionedOffices = ['D&P, Lucknow', '765 kV, Design Unit, Lucknow', 'C&C, Lucknow', 'CMUT, Lucknow', 'Hq, Lucknow'];
