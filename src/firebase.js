@@ -1,21 +1,19 @@
 import { initializeApp } from "firebase/app";
-import { initializeFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "firebase/firestore";
+import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAuNKiDa6gwA-bEmJ7gW4xwUPjkcdBjLd8",
+  apiKey: "AIzaSyAuNkIda6gwA-bEmJ7gW4xWUPjkcdBjLd8",
   authDomain: "upptcl-portal.firebaseapp.com",
   projectId: "upptcl-portal",
   storageBucket: "upptcl-portal.firebasestorage.app",
   messagingSenderId: "354880197422",
-  appId: "1:354880197422:web:7dbe938378709f5ae660bf",
+  appId: "1:354880197422:web:7dbe938378789f5ae660bf",
   measurementId: "G-LZPH2XN1CP"
 };
 
-// Initialize Firebase with Long-Polling for 100% stable connection on all networks
+// Initialize Firebase App
 const app = initializeApp(firebaseConfig);
-export const db = initializeFirestore(app, {
-  experimentalForceLongPolling: true,
-});
+export const db = getFirestore(app);
 
 // Save or Update an individual employee directly in Firestore
 export const saveEmployeeToFirestore = async (emp) => {
