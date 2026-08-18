@@ -1,0 +1,330 @@
+{
+  "zones": [
+    {
+      "name": "West-Meerut",
+      "officeName": "CE (TW), Meerut",
+      "circles": [
+        {
+          "name": "Electricity Transmission Circle, Meerut",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Transmission Circle, Muzaffarnagar",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Transmission Circle-I, Moradabad",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Transmission Circle-II, Moradabad",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Transmission Circle, Ghaziabad",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Transmission Circle, Noida",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Transmission Circle, Greater Noida",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Testing & Commissioning Circle, Meerut",
+          "divisions": []
+        }
+      ]
+    },
+    {
+      "name": "South-East, Prayagraj",
+      "officeName": "CE (TSE), Prayagraj",
+      "circles": [
+        {
+          "name": "Electricity Transmission Circle-I, Prayagraj",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Transmission Circle-II, Prayagraj",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Transmission Circle-I, Varanasi",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Transmission Circle-II, Varanasi",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Transmission Circle, Mirzapur",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Testing & Commissioning Circle, Prayagraj",
+          "divisions": []
+        }
+      ]
+    },
+    {
+      "name": "South-West, Agra",
+      "officeName": "CE (TSW), Agra",
+      "circles": [
+        {
+          "name": "Electricity Transmission Circle, Agra",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Transmission Circle, Aligarh",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Transmission Circle-I, Panki Kanpur",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Transmission Circle-II, Kanpur",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Transmission Circle, Mathura",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Testing & Commissioning Circle, Agra",
+          "divisions": []
+        }
+      ]
+    },
+    {
+      "name": "Central-Lucknow",
+      "officeName": "CE (TC), Lucknow",
+      "circles": [
+        {
+          "name": "Electricity Transmission Circle-I, Lucknow",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Transmission Circle-II, Lucknow",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Transmission Circle, Sultanpur",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Transmission Circle, Gonda",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Transmission Circle, Bareilly",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Transmission Circle, Shahjahanpur",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Testing & Commissioning Circle, Lucknow",
+          "divisions": []
+        }
+      ]
+    },
+    {
+      "name": "North-East, Gorakhpur",
+      "officeName": "CE (TNE), Gorakhpur",
+      "circles": [
+        {
+          "name": "Electricity Transmission Circle, Gorakhpur",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Transmission Circle, Azamgarh",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Transmission Circle, Basti",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Testing & Commissioning Circle, Gorakhpur",
+          "divisions": []
+        }
+      ]
+    },
+    {
+      "name": "South-Central, Jhansi",
+      "officeName": "CE (TSC), Jhansi",
+      "circles": [
+        {
+          "name": "Electricity Transmission Circle, Jhansi",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Transmission Circle, Banda",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Testing & Commissioning Circle, Jhansi",
+          "divisions": []
+        }
+      ]
+    },
+    {
+      "name": "Civil-I, Lucknow",
+      "officeName": "CE-Civil-I, Lucknow",
+      "circles": [
+        {
+          "name": "Electricity Civil Transmission Circle, Moradabad",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Civil Transmission Circle, Noida",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Civil Transmission Circle, Agra",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Civil Transmission Circle, Jhansi",
+          "divisions": []
+        }
+      ]
+    },
+    {
+      "name": "Civil-II, Lucknow",
+      "officeName": "CE-Civil-II, Lucknow",
+      "circles": [
+        {
+          "name": "Electricity Civil Transmission Circle, Lucknow",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Civil Transmission Circle, Prayagraj",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Civil Transmission Circle, Gorakhpur",
+          "divisions": []
+        }
+      ]
+    }
+  ],
+  "hqUnits": [
+    {
+      "name": "D&P, Lucknow",
+      "officeName": "CE (D&P), Lucknow",
+      "circles": [
+        {
+          "name": "Electricity Sub Station Design Circle-I, Lucknow",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Sub Station Design Circle-II, Lucknow",
+          "divisions": []
+        },
+        {
+          "name": "Electricity Transmission Design Circle, Lucknow",
+          "divisions": []
+        },
+        {
+          "name": "Public Private Patnership Cell (PPP)",
+          "divisions": []
+        }
+      ]
+    },
+    {
+      "name": "765 kV, Design Unit, Lucknow",
+      "officeName": "CE (765 kV), Lucknow",
+      "circles": [
+        {
+          "name": "Electricity 765/400 KV Sub Station Design Circle",
+          "divisions": []
+        },
+        {
+          "name": "Electricity 765/400 KV Transmission Design Circle",
+          "divisions": []
+        }
+      ]
+    },
+    {
+      "name": "C&P, Lucknow",
+      "officeName": "CE (C&P), Lucknow"
+    },
+    {
+      "name": "CMUT, Lucknow",
+      "officeName": "CE, CMUT, Lucknow"
+    },
+    {
+      "name": "C&C, Lucknow",
+      "officeName": "CE, C&C, Lucknow",
+      "circles": [
+        {
+          "name": "Electricity Microwave and Telecommunication Circle-I",
+          "divisions": [
+            "Electricity Microwave & Telecommunication Division, Sarojini Nagar Lko.",
+            "Electricity Microwave & Telecommunication Division, Meerut",
+            "Electricity Microwave & Telecommunication Division, Agra"
+          ]
+        },
+        {
+          "name": "Electricity Microwave and Telecommunication Circle-II",
+          "divisions": [
+            "Electricity Microwave & Telecommunication Division, Varanasi",
+            "Electricity Microwave & Telecommunication Division, Gomtinagar Lko.",
+            "Electricity Microwave & Telecommunication Division, Gorakhpur"
+          ]
+        },
+        {
+          "name": "Electricity Communication & Computerization Design Circle",
+          "divisions": []
+        }
+      ]
+    },
+    {
+      "name": "Hq, Lucknow",
+      "officeName": "CE/AS (T), Lucknow"
+    },
+    {
+      "name": "Operation, Lucknow",
+      "officeName": "CE (Operation), Lucknow"
+    },
+    {
+      "name": "ERP, Lucknow",
+      "officeName": "CE, ERP, Lucknow"
+    },
+    {
+      "name": "Director (Operation), Lucknow",
+      "officeName": "Director (Operation), Lucknow"
+    },
+    {
+      "name": "Director (PM&A), Lucknow",
+      "officeName": "Director (PM&A), Lucknow"
+    },
+    {
+      "name": "Director (W&P), Lucknow",
+      "officeName": "Director (W&P), Lucknow"
+    },
+    {
+      "name": "Director (Commercial & Planning), Lucknow",
+      "officeName": "Director (Commercial & Planning), Lucknow"
+    },
+    {
+      "name": "Director (Finance), Lucknow",
+      "officeName": "Director (Finance), Lucknow"
+    },
+    {
+      "name": "Circle to be Created",
+      "officeName": "Circle to be Created"
+    }
+  ],
+  "sldcUnits": [
+    {
+      "name": "Director (SLDC), Lucknow",
+      "officeName": "Director (SLDC), Lucknow"
+    }
+  ]
+}

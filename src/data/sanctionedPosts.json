@@ -1,0 +1,552 @@
+[
+  {
+    "key": "ZONE|West-Meerut|Electricity Transmission Circle, Meerut|",
+    "office": "ZONE",
+    "zone": "West-Meerut",
+    "circle": "Electricity Transmission Circle, Meerut",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|West-Meerut|Electricity Transmission Circle, Muzaffarnagar|",
+    "office": "ZONE",
+    "zone": "West-Meerut",
+    "circle": "Electricity Transmission Circle, Muzaffarnagar",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|West-Meerut|Electricity Transmission Circle-I, Moradabad|",
+    "office": "ZONE",
+    "zone": "West-Meerut",
+    "circle": "Electricity Transmission Circle-I, Moradabad",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|West-Meerut|Electricity Transmission Circle-II, Moradabad|",
+    "office": "ZONE",
+    "zone": "West-Meerut",
+    "circle": "Electricity Transmission Circle-II, Moradabad",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|West-Meerut|Electricity Transmission Circle, Ghaziabad|",
+    "office": "ZONE",
+    "zone": "West-Meerut",
+    "circle": "Electricity Transmission Circle, Ghaziabad",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|West-Meerut|Electricity Transmission Circle, Noida|",
+    "office": "ZONE",
+    "zone": "West-Meerut",
+    "circle": "Electricity Transmission Circle, Noida",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|West-Meerut|Electricity Transmission Circle, Greater Noida|",
+    "office": "ZONE",
+    "zone": "West-Meerut",
+    "circle": "Electricity Transmission Circle, Greater Noida",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|West-Meerut|Electricity Testing & Commissioning Circle, Meerut|",
+    "office": "ZONE",
+    "zone": "West-Meerut",
+    "circle": "Electricity Testing & Commissioning Circle, Meerut",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|Central-Lucknow||SE (A) to CE (TC), Lucknow",
+    "office": "ZONE",
+    "zone": "Central-Lucknow",
+    "circle": "",
+    "officeName": "SE (A) to CE (TC), Lucknow",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|Central-Lucknow|Electricity Transmission Circle-I, Lucknow|",
+    "office": "ZONE",
+    "zone": "Central-Lucknow",
+    "circle": "Electricity Transmission Circle-I, Lucknow",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|Central-Lucknow|Electricity Transmission Circle-II, Lucknow|",
+    "office": "ZONE",
+    "zone": "Central-Lucknow",
+    "circle": "Electricity Transmission Circle-II, Lucknow",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|Central-Lucknow|Electricity Transmission Circle, Sultanpur|",
+    "office": "ZONE",
+    "zone": "Central-Lucknow",
+    "circle": "Electricity Transmission Circle, Sultanpur",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|Central-Lucknow|Electricity Transmission Circle, Gonda|",
+    "office": "ZONE",
+    "zone": "Central-Lucknow",
+    "circle": "Electricity Transmission Circle, Gonda",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|Central-Lucknow|Electricity Transmission Circle, Bareilly|",
+    "office": "ZONE",
+    "zone": "Central-Lucknow",
+    "circle": "Electricity Transmission Circle, Bareilly",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|Central-Lucknow|Electricity Transmission Circle, Shahjahanpur|",
+    "office": "ZONE",
+    "zone": "Central-Lucknow",
+    "circle": "Electricity Transmission Circle, Shahjahanpur",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|Central-Lucknow|Electricity Testing & Commissioning Circle, Lucknow|",
+    "office": "ZONE",
+    "zone": "Central-Lucknow",
+    "circle": "Electricity Testing & Commissioning Circle, Lucknow",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|South-East, Prayagraj|Electricity Transmission Circle-I, Prayagraj|",
+    "office": "ZONE",
+    "zone": "South-East, Prayagraj",
+    "circle": "Electricity Transmission Circle-I, Prayagraj",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|South-East, Prayagraj|Electricity Transmission Circle-I, Varanasi|",
+    "office": "ZONE",
+    "zone": "South-East, Prayagraj",
+    "circle": "Electricity Transmission Circle-I, Varanasi",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|South-East, Prayagraj|Electricity Transmission Circle-II, Varanasi|",
+    "office": "ZONE",
+    "zone": "South-East, Prayagraj",
+    "circle": "Electricity Transmission Circle-II, Varanasi",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|South-East, Prayagraj|Electricity Transmission Circle, Mirzapur|",
+    "office": "ZONE",
+    "zone": "South-East, Prayagraj",
+    "circle": "Electricity Transmission Circle, Mirzapur",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|South-East, Prayagraj|Electricity Transmission Circle-II, Prayagraj|",
+    "office": "ZONE",
+    "zone": "South-East, Prayagraj",
+    "circle": "Electricity Transmission Circle-II, Prayagraj",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|South-East, Prayagraj|Electricity Testing & Commissioning Circle, Prayagraj|",
+    "office": "ZONE",
+    "zone": "South-East, Prayagraj",
+    "circle": "Electricity Testing & Commissioning Circle, Prayagraj",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|North-East, Gorakhpur||SE (A) to CE (TNE), Gorakhpur",
+    "office": "ZONE",
+    "zone": "North-East, Gorakhpur",
+    "circle": "",
+    "officeName": "SE (A) to CE (TNE), Gorakhpur",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|North-East, Gorakhpur|Electricity Transmission Circle, Gorakhpur|",
+    "office": "ZONE",
+    "zone": "North-East, Gorakhpur",
+    "circle": "Electricity Transmission Circle, Gorakhpur",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|North-East, Gorakhpur|Electricity Transmission Circle, Azamgarh|",
+    "office": "ZONE",
+    "zone": "North-East, Gorakhpur",
+    "circle": "Electricity Transmission Circle, Azamgarh",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|North-East, Gorakhpur|Electricity Transmission Circle, Basti|",
+    "office": "ZONE",
+    "zone": "North-East, Gorakhpur",
+    "circle": "Electricity Transmission Circle, Basti",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|North-East, Gorakhpur|Electricity Testing & Commissioning Circle, Gorakhpur|",
+    "office": "ZONE",
+    "zone": "North-East, Gorakhpur",
+    "circle": "Electricity Testing & Commissioning Circle, Gorakhpur",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|South-West, Agra||SE (A) to CE (TSW), Agra",
+    "office": "ZONE",
+    "zone": "South-West, Agra",
+    "circle": "",
+    "officeName": "SE (A) to CE (TSW), Agra",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|South-West, Agra|Electricity Transmission Circle, Agra|",
+    "office": "ZONE",
+    "zone": "South-West, Agra",
+    "circle": "Electricity Transmission Circle, Agra",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|South-West, Agra|Electricity Transmission Circle, Aligarh|",
+    "office": "ZONE",
+    "zone": "South-West, Agra",
+    "circle": "Electricity Transmission Circle, Aligarh",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|South-West, Agra|Electricity Transmission Circle-I, Panki Kanpur|",
+    "office": "ZONE",
+    "zone": "South-West, Agra",
+    "circle": "Electricity Transmission Circle-I, Panki Kanpur",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|South-West, Agra|Electricity Transmission Circle-II, Kanpur|",
+    "office": "ZONE",
+    "zone": "South-West, Agra",
+    "circle": "Electricity Transmission Circle-II, Kanpur",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|South-West, Agra|Electricity Transmission Circle, Mathura|",
+    "office": "ZONE",
+    "zone": "South-West, Agra",
+    "circle": "Electricity Transmission Circle, Mathura",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|South-West, Agra|Electricity Testing & Commissioning Circle, Agra|",
+    "office": "ZONE",
+    "zone": "South-West, Agra",
+    "circle": "Electricity Testing & Commissioning Circle, Agra",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|South-Central, Jhansi||SE (A) to CE (TSC), Jhansi",
+    "office": "ZONE",
+    "zone": "South-Central, Jhansi",
+    "circle": "",
+    "officeName": "SE (A) to CE (TSC), Jhansi",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|South-Central, Jhansi|Electricity Transmission Circle, Jhansi|",
+    "office": "ZONE",
+    "zone": "South-Central, Jhansi",
+    "circle": "Electricity Transmission Circle, Jhansi",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|South-Central, Jhansi|Electricity Transmission Circle, Banda|",
+    "office": "ZONE",
+    "zone": "South-Central, Jhansi",
+    "circle": "Electricity Transmission Circle, Banda",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|South-Central, Jhansi|Electricity Testing & Commissioning Circle, Jhansi|",
+    "office": "ZONE",
+    "zone": "South-Central, Jhansi",
+    "circle": "Electricity Testing & Commissioning Circle, Jhansi",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|West-Meerut||SE (A) to CE (TW), Meerut",
+    "office": "ZONE",
+    "zone": "West-Meerut",
+    "circle": "",
+    "officeName": "SE (A) to CE (TW), Meerut",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "HQ|C&C, Lucknow|Electricity Microwave and Telecommunication Circle-I|",
+    "office": "HQ",
+    "zone": "C&C, Lucknow",
+    "circle": "Electricity Microwave and Telecommunication Circle-I",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "HQ|C&C, Lucknow|Electricity Microwave and Telecommunication Circle-II|",
+    "office": "HQ",
+    "zone": "C&C, Lucknow",
+    "circle": "Electricity Microwave and Telecommunication Circle-II",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "HQ|C&C, Lucknow|Electricity Communication & Computerization Design Circle|",
+    "office": "HQ",
+    "zone": "C&C, Lucknow",
+    "circle": "Electricity Communication & Computerization Design Circle",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "HQ|D&P, Lucknow|Electricity Sub Station Design Circle-I, Lucknow|CE (D&P), Lucknow",
+    "office": "HQ",
+    "zone": "D&P, Lucknow",
+    "circle": "Electricity Sub Station Design Circle-I, Lucknow",
+    "officeName": "CE (D&P), Lucknow",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "HQ|D&P, Lucknow|Electricity Sub Station Design Circle-II, Lucknow|CE (D&P), Lucknow",
+    "office": "HQ",
+    "zone": "D&P, Lucknow",
+    "circle": "Electricity Sub Station Design Circle-II, Lucknow",
+    "officeName": "CE (D&P), Lucknow",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "HQ|D&P, Lucknow|Electricity Transmission Design Circle, Lucknow|CE (D&P), Lucknow",
+    "office": "HQ",
+    "zone": "D&P, Lucknow",
+    "circle": "Electricity Transmission Design Circle, Lucknow",
+    "officeName": "CE (D&P), Lucknow",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "HQ|Director (W&P), Lucknow||Public Private Patnership Cell",
+    "office": "HQ",
+    "zone": "Director (W&P), Lucknow",
+    "circle": "",
+    "officeName": "Public Private Patnership Cell",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "HQ|765 kV, Design Unit, Lucknow|Electricity 765/400 KV Sub Station Design Circle|",
+    "office": "HQ",
+    "zone": "765 kV, Design Unit, Lucknow",
+    "circle": "Electricity 765/400 KV Sub Station Design Circle",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "HQ|765 kV, Design Unit, Lucknow|Electricity 765/400 KV Transmission Design Circle|",
+    "office": "HQ",
+    "zone": "765 kV, Design Unit, Lucknow",
+    "circle": "Electricity 765/400 KV Transmission Design Circle",
+    "officeName": "",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "HQ|Director (Commercial & Planning), Lucknow||SE (A) to Director (Commercial & Planning), Lucknow",
+    "office": "HQ",
+    "zone": "Director (Commercial & Planning), Lucknow",
+    "circle": "",
+    "officeName": "SE (A) to Director (Commercial & Planning), Lucknow",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 2
+  },
+  {
+    "key": "HQ|Director (PM&A), Lucknow||SE/Joint Secretary (T) (A) to Dir. (PM&A)",
+    "office": "HQ",
+    "zone": "Director (PM&A), Lucknow",
+    "circle": "",
+    "officeName": "SE/Joint Secretary (T) (A) to Dir. (PM&A)",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 2
+  },
+  {
+    "key": "HQ|Director (PM&A), Lucknow||SE (Hqrs) (A) to Dir (PM&A)",
+    "office": "HQ",
+    "zone": "Director (PM&A), Lucknow",
+    "circle": "",
+    "officeName": "SE (Hqrs) (A) to Dir (PM&A)",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "HQ|Circle to be Created||Circle to be Created-1",
+    "office": "HQ",
+    "zone": "Circle to be Created",
+    "circle": "",
+    "officeName": "Circle to be Created-1",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "HQ|Circle to be Created||Circle to be Created-2",
+    "office": "HQ",
+    "zone": "Circle to be Created",
+    "circle": "",
+    "officeName": "Circle to be Created-2",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "HQ|Circle to be Created||Circle to be Created-3",
+    "office": "HQ",
+    "zone": "Circle to be Created",
+    "circle": "",
+    "officeName": "Circle to be Created-3",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  },
+  {
+    "key": "ZONE|South-East, Prayagraj||SE (A) to CE (TSE), Prayagraj",
+    "office": "ZONE",
+    "zone": "South-East, Prayagraj",
+    "circle": "",
+    "officeName": "SE (A) to CE (TSE), Prayagraj",
+    "dept": "UPPTCL",
+    "desig": "Superintending Engineer/Joint Secretary (E&M)",
+    "count": 1
+  }
+]

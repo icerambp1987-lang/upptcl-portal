@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>उ0प्र0पा0ट्रां0का0लि0 जनशक्ति (Manpower) डैशबोर्ड</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root {
+    --bg: #06090f;
+    --bg-card: #0d1320;
+    --bg-card-hover: #131b2e;
+    --border: #1e293b;
+    --fg: #f1f5f9;
+    --fg-muted: #94a3b8;
+    --accent: #f59e0b;
+    --accent-glow: rgba(245, 158, 11, 0.15);
+    --teal: #14b8a6;
+    --red: #ef4444;
+    --green: #22c55e;
+    --blue: #3b82f6;
+    --purple: #a855f7;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans Devanagari', 'Poppins', sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* बैकग्राउंड एनिमेशन */
+  .bg-grid {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image:
+      linear-gradient(rgba(245,158,11,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(245,158,11,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .bg-glow-1 {
+    position: fixed;
+    top: -20%; left: -10%;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(245,158,11,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: floatGlow 12s ease-in-out infinite;
+    z-index: 0;
+  }
+
+  .bg-glow-2 {
+    position: fixed;
+    bottom: -20%; right: -10%;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(20,184,166,0.06) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: floatGlow 15s ease-in-out infinite reverse;
+    z-index: 0;
+  }
+
+  /* बैकग्राउंड लोगो वॉटरमार्क — लोगो इमेज मिलने पर यहाँ background-image लगाई जाएगी */
+  .bg-logo-watermark { display: none; }
+
+  /* हेडर लोगो — ऊपर बाईं ओर */
+  .header-logo-topleft {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 56px;
+    height: auto;
+    z-index: 5;
+  }
+  @media (max-width: 640px) {
+    .header-logo-topleft { position: static; transform: none; display: block; margin: 0 auto 8px; }
+  }
+
+  @media print {
+    .bg-logo-watermark { opacity: 0.10; position: fixed; }
+  }
+
+  @keyframes floatGlow {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(40px, 30px) scale(1.1); }
+  }
+
+  /* कार्ड स्टाइल */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .card:hover {
+    border-color: rgba(245,158,11,0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 20px var(--accent-glow);
+  }
+
+  .card:hover::before { opacity: 1; }
+
+  /* स्टैट कार्ड */
+  .stat-card {
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-card-hover) 100%);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+  }
+
+  .stat-card .icon-bg {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+  }
+
+  .stat-number {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    font-size: 2.2rem;
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+
+  /* टेबल स्टाइल */
+  .data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .data-table thead th {
+    background: rgba(245,158,11,0.08);
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 14px 16px;
+    text-align: center;
+    border-bottom: 2px solid rgba(245,158,11,0.2);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    white-space: nowrap;
+  }
+
+  .data-table tbody tr {
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+
+  .data-table tbody tr:hover {
+    background: rgba(245,158,11,0.04);
+  }
+
+  .data-table tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(30,41,59,0.5);
+    font-size: 0.9rem;
+    color: var(--fg-muted);
+  }
+
+  .data-table tbody td:first-child { color: var(--fg); font-weight: 500; }
+
+  .group-header-row {
+    background: rgba(245,158,11,0.06) !important;
+    cursor: pointer !important;
+  }
+
+  .group-header-row td {
+    color: var(--accent) !important;
+    font-weight: 700 !important;
+    font-size: 1.05rem !important;
+    padding: 14px 16px !important;
+    border-bottom: 2px solid rgba(245,158,11,0.15) !important;
+  }
+
+  .sub-group-row {
+    background: rgba(20,184,166,0.04) !important;
+    cursor: pointer !important;
+  }
+
+  .sub-group-row td {
+    color: var(--teal) !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    padding: 10px 16px 10px 32px !important;
+  }
+
+  .total-row {
+    background: rgba(245,158,11,0.1) !important;
+    border-top: 2px solid var(--accent) !important;
+  }
+
+  .total-row td {
+    color: var(--fg) !important;
+    font-weight: 800 !important;
+    font-size: 1rem !important;
+  }
+
+  .grand-total-row {
+    background: linear-gradient(90deg, rgba(245,158,11,0.15), rgba(20,184,166,0.1)) !important;
+    border-top: 3px solid var(--accent) !important;
+    border-bottom: 3px solid var(--accent) !important;
+  }
+
+  .grand-total-row td {
+    color: var(--accent) !important;
+    font-weight: 900 !important;
+    font-size: 1.1rem !important;
+  }
+
+  /* वैकेंसी बार */
+  .vacancy-bar {
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(30,41,59,0.8);
+    overflow: hidden;
+    min-width: 50px;
+  }
+
+  .vacancy-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s ease;
+  }
+
+  /* टैब स्टाइल */
+  .tab-btn {
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    border: 1px solid transparent;
+    cursor: pointer;
+    background: transparent;
+    color: var(--fg-muted);
+    white-space: nowrap;
+  }
+
+  .tab-btn:hover {
+    color: var(--fg);
+    background: rgba(245,158,11,0.05);
+  }
+
+  .tab-btn.active {
+    background: rgba(245,158,11,0.12);
+    color: var(--accent);
+    border-color: rgba(245,158,11,0.3);
+    box-shadow: 0 0 20px rgba(245,158,11,0.1);
+  }
+
+  /* सर्च बार */
+  .search-input {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px 12px 44px;
+    color: var(--fg);
+    font-size: 0.95rem;
+    width: 100%;
+    max-width: 400px;
+    transition: all 0.3s;
+    outline: none;
+    font-family: 'Noto Sans Devanagari', sans-serif;
+  }
+
+  .search-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  /* बैज */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .badge-vacant { background: rgba(239,68,68,0.15); color: #fca5a5; }
+  .badge-working { background: rgba(34,197,94,0.15); color: #86efac; }
+  .badge-over { background: rgba(168,85,247,0.15); color: #d8b4fe; }
+
+  /* स्क्रॉलबार */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+  /* एडिटेबल कार्यरत सेल */
+  .working-edit {
+    display: inline-block;
+    min-width: 28px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    border-bottom: 1px dashed rgba(34,197,94,0.5);
+    cursor: text;
+    transition: all 0.2s;
+  }
+
+  .working-edit:hover {
+    background: rgba(34,197,94,0.1);
+    border-bottom-color: rgba(34,197,94,0.9);
+  }
+
+  .working-edit:focus {
+    outline: none;
+    background: rgba(34,197,94,0.15);
+    border-bottom: 1px solid var(--green);
+    box-shadow: 0 0 0 2px rgba(34,197,94,0.25);
+  }
+
+  /* एडिटेबल पदनाम / दिनांक सेल (सामान्य) */
+  .inline-editable {
+    display: inline-block;
+    min-width: 24px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    border-bottom: 1px dashed rgba(148,163,184,0.6);
+    cursor: text;
+    transition: all 0.2s;
+  }
+
+  .inline-editable:hover {
+    background: rgba(148,163,184,0.12);
+    border-bottom-color: rgba(148,163,184,0.9);
+  }
+
+  .inline-editable:focus {
+    outline: none;
+    background: rgba(148,163,184,0.18);
+    border-bottom: 1px solid var(--fg);
+    box-shadow: 0 0 0 2px rgba(148,163,184,0.25);
+  }
+
+  /* टोस्ट */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 20px;
+    color: var(--fg);
+    font-size: 0.9rem;
+    z-index: 1000;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.4s ease;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* एनिमेशन */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-in {
+    animation: fadeInUp 0.6s ease forwards;
+    opacity: 0;
+  }
+
+  .chart-container { position: relative; width: 100%; }
+  .table-wrapper { max-height: 600px; overflow-y: auto; border-radius: 12px; }
+
+  @media print {
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+    .bg-grid, .bg-glow-1, .bg-glow-2, .no-print { display: none !important; }
+    body { background: #fff; color: #000; font-size: 11px; }
+    .card, .stat-card { background: #fff; border: 1px solid #ccc; box-shadow: none; }
+    .stat-number { color: #000; }
+
+    /* पदों के बीच स्पेसिंग कम करें ताकि कम पेजों में डाटा आए */
+    .data-table { font-size: 10.5px; }
+    .data-table thead th { padding: 4px 6px !important; font-size: 10px !important; }
+    .data-table tbody td { padding: 3px 6px !important; line-height: 1.2 !important; }
+    .group-header-row td { padding: 5px 6px !important; font-size: 0.95rem !important; }
+    .sub-group-row td { padding: 3px 6px 3px 14px !important; font-size: 0.82rem !important; }
+    .total-row td, .grand-total-row td { padding: 4px 6px !important; }
+    .inline-editable, .working-edit { padding: 0 4px !important; min-width: 0 !important; }
+    .vacancy-bar { height: 5px !important; }
+    .print-page-break { page-break-before: always; break-before: page; }
+    .table-wrapper { max-height: none !important; overflow: visible !important; }
+    .group-header-row, .sub-group-row, .total-row, .grand-total-row { break-inside: avoid; }
+
+    /* स्टिकी पोज़ीशनिंग हटाएँ — यही मुख्य हेडिंग व टेबल हेडर के ओवरलेप का कारण था */
+    header { position: static !important; box-shadow: none !important; backdrop-filter: none !important; }
+    .data-table thead th { position: static !important; top: auto !important; }
+
+    /* पेज हेडिंग साफ़ व स्पष्ट */
+    header h1 { color: #78350f !important; font-size: 1.4rem !important; }
+    header p { color: #444 !important; }
+    header .icon-bg, header .w-12 { background: #f59e0b !important; }
+
+    /* टेबल की सभी टेक्स्ट-कलर स्पष्ट व गहरे करें (हल्के रंग की वजह से क्र.सं./पदनाम ठीक से दिख नहीं रहे थे) */
+    .data-table thead th { background: #fde68a !important; color: #78350f !important; }
+    .data-table tbody td { color: #1e293b !important; }
+    .data-table tbody td:first-child { color: #000 !important; font-weight: 700 !important; }
+    .data-table tbody td:nth-child(2) { color: #000 !important; }
+    .working-edit, .inline-editable, .hindi-edit, .english-edit { border-bottom: none !important; background: none !important; }
+    .vacant-cell.text-red-400 { color: #b91c1c !important; }
+
+    /* सारी टेबल में स्पष्ट ग्रिड लाइनें */
+    .data-table { border-collapse: collapse !important; }
+    .data-table th, .data-table td { border: 1px solid #64748b !important; }
+    .group-header-row { background: #fef3c7 !important; }
+    .group-header-row td { color: #92400e !important; }
+    .sub-group-row { background: #ccfbf1 !important; }
+    .sub-group-row td { color: #0f766e !important; }
+    .total-row { background: #fde68a !important; }
+    .total-row td { color: #000 !important; }
+    .grand-total-row { background: #fcd34d !important; }
+    .grand-total-row td { color: #78350f !important; }
+
+    /* प्रिंट क्रम: शीर्षक -> उप-शीर्षक (हेडर में) -> सम्पूर्ण पद विवरण -> समरी व ग्राफ हमेशा नए पृष्ठ पर */
+    main { display: flex; flex-direction: column; }
+    #tableSection { order: 1; }
+    #masterStatsSection { order: 2; page-break-before: always !important; break-before: page !important; margin-top: 0; }
+    #groupStatsContainer { order: 3; }
+    #chartSection { order: 4; margin-top: 12px; page-break-inside: avoid; }
+
+    /* रिक्ति % कालम को पतला करें ताकि पदनाम व Designation कालम प्रिंट में फिट हो जाएँ */
+    .data-table { table-layout: fixed; width: 100%; }
+    .data-table th:nth-child(1), .data-table td:nth-child(1) { width: 6%; }
+    .data-table th:nth-child(2), .data-table td:nth-child(2) { width: 52%; }
+    .data-table th:nth-child(3), .data-table td:nth-child(3) { width: 12%; }
+    .data-table th:nth-child(4), .data-table td:nth-child(4) { width: 12%; }
+    .data-table th:nth-child(5), .data-table td:nth-child(5) { width: 10%; }
+    .data-table th:nth-child(6), .data-table td:nth-child(6) { width: 8%; }
+    .pct-cell .vacancy-bar { display: none; }
+    .pct-cell > div { justify-content: center; }
+    .data-table td, .data-table th { word-wrap: break-word; overflow-wrap: break-word; white-space: normal; }
+  }
+
+  /* प्रिंट मेन्यू */
+  .print-menu-item {
+    width: 100%;
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 0.88rem;
+    color: var(--fg);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.15s;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+  }
+  .print-menu-item:hover { background: rgba(245,158,11,0.08); }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-glow-1"></div>
+<div class="bg-glow-2"></div>
+<div class="bg-logo-watermark" id="bgLogoWatermark"></div>
+<div id="toast" class="toast"></div>
+
+<div class="relative z-10">
+
+  <!-- हेडर -->
+  <header class="border-b border-[var(--border)] backdrop-blur-md bg-[var(--bg)]/80 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-4 relative">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPUAAADOCAYAAADmDEQLAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAALxNJREFUeNrsXW2sFdXV3qNXPhQB5dYCUqtUKVIMXJrW1iDFEiJKUsREqYFq0vLDtmlLExtp00oDDZRWYyW+0URTY1P6QxMREgkJQqwSBUmhBES0FClCgaJwrVAp1M47z/Suk3UWe773njNzzl7Jyr333HPmzMdee631rC/P933lyJGj9qHz3C1w5MgJtSNHjpxQO3LkqCzqcregPeijjz5SAwcOPOf1V155Rb344ovqvffeC/++7rrr1Ny5c9XFF1+sPc6ZM2dUv3793A2tMwEoc1xN/ve//63+/Oc/hxz1nosuusi/8cYbgXb6v/nNb5r+98ADD4SPmPMnP/nJ8CeEXB7rqquuaryvp6fHnzFjho/X33rrLfXYY4+pF154Qf3nP/9xz6bi7G5CBflPf/oTNKovBfK5555reh8EjP9/6tSpPv3v73//e9P/Zs2a5fNj/vKXvzx3MYjv+9+e7ytsFvQ3BNw9o2qz86lbRIcPHw5NXd3rn//85/2dO3c2vX7ppZeq22+/3cf/ic4//3y1dOlSD79/+tOfVkOGDGn878SJE43fA00evu+uu+7y6LWFCxc2xTLff//98Gegyc8xx3ft2tX4e8SIEZlcgm3btqmPP/7YPXAHlLUnYYEvWrRIeZ7njxw50u/fv7+/du3apvesWLGiSRj/9re/hYJ4/Pjx8LXt27c3vX/Lli2hcAbvU5s3b25sFCSk5FefPn06ZL5JSApMeXX06NEmwT5y5EjjO0BRvrikRx55RF144YU+Nqiuri7/tttu83fs2OEWgRPq9iEIFhb44sWLfdKsoJkzZ/obN27UfubkyZPqiiuuUJ/97Gcbrz399NNNGhZ+NxEEkkCuDz/8sOlYAwYMgJA1/qZNgujgwYPq1KlTjeNwIqth8uTJqa91wYIFTee5evVqNXHiRH/lypVuMTihrh8dOHAgZE5TpkxpLPLAR/UgZIRG//GPf2y8b/z48ecI3s0339wwm5955pmm4waC4unOQWpUaO7e3t7G33yjAHETm7Q2WQBEw4YNS3X9d9xxR3it8+fP98C4XvrfvHnzXAqjE+p0/mkVaNWqVeqmm27yAy3sf//73/e5b8lp0qRJ6v777/dIC5L2lkINgVq2bJm69tprgT57GzZs8N56660mIebv5xqaQlhE0lcG4MWJ3j9jxgwVnLvX09MT/r13797Ge4Lr8tI8C9L0Tz75pB/48eH1JhGslccff1zBHanK86wtObTQHC9dujS8pUqDFEPQ6fVAaEKEm78XAkxhLCDV/H+B/6sNQenCVvQ+iX7jXPC99DdCYfw4d999dxPKrjRIOEJaSffgt7/9bfhZCp3hNYTG6BiBCe/Lz+A1+V24B7gXbl059LsU2r17t7rnnnv8H//4x02v33rrrU0A1NatWxu/B+/3GBjmwxSGVgyEINS+8J1B8IkD87VJI8IM7+7u9mEJSJIIOvnFpGGnTp3a8M+HDx8egm86+t3vftcwy/v37699D7kMcfTwww83rA64FrBS1q1b1/j/2LFjPQmobdq06ZzjwAcfM2aMM9WdprYfP5ZaRSZjQAMqlsBBryOBRGojmSzCGRqXtB1naFT+PqlV33jjjca5kpbHT2hQxKaViEGD//nPfyquIaGRddozylrg54z3BRtD+L2wIvD673//+0bcHefFk2u4BTN9+nS/z4dP/Z1F2OaxXfJJTRhCKhc6FmyUGcvNavD8+fO1Zi0JYhrzWonEEXy/7vtefvnlc4Sdm99gMm+5IOHY0jWI2sAkyw2GX7uO5bnDRdiwYYPiQi4/g+vCdZgQyHbNjnPCGsHQXhAoLCJ6jWdWRS128mW5hoxbyMSk1YghEPhupGfyTDD6nd4Hrarz4/FZvgnhffK7cY3yGPhdakswNGrSPVu4cKHi55n0fn5dZNVw/5vSVKOy3oBh/Otf/3Lr1Ql1PEMokW6pW5w6ExoMwYtaeNwE5xqCCxwtZGipKI2H79BpWa7ZuHkrtS2EnEAsKdRc2KEB+5Dxpmv8zne+k7yYMrxfnjfOjcz3KPeEWy3cPZDps06o3U1osG4xk0aIy4/mmhMszVxZkIHFC43INw9ubsrFjcUsz40Wsnyd3AFpfuP7onxqrmGxgeg2L2lJSCbtTtoX3wfBxeaiM3PpOzlKjo2Afyc22KhNA/eOuzNyY3VC7Tg2vMI1oPSZdb41/NcojcM1NASPwmAEsJH2hIBLMzTq+6KsBt15klUAoaL3cZOXA2ccqONuSFw4j4AvjiHgOFxzS/Me/5PFKRIQlGE+CDy3MHShMifUjmP9ZpQl6kzjKJ+T/48vOFroEG78Lt9LJrgE1biQS+3PX4eVwNF63bmiVJP7olJ7439Rm1oUk9BRKag8Lt9EJPiH75OvcfBQbgIk8FHXTc8paSNyQt1G6CKhrDrUOcpvJpMSpjEWLYSY1x9LbcZNWo4E802DNgqEgEiDkwaW2j7Oh8d34XM4tlzIOF9cE84dfquudBLfhf/TZyFkEFJ+fUkll9I1kOfP0Wr+um5jkwAZ3RvcJwImaRPQ1YfzTQn3ptPAtI66WCxuaV7LBSRBLF2sFgKNxQSNceeddzY0FNfIclGTsJIPDHQc300+KDU64H4ktCMWPd6D74KJmxQmatVmzM1j3B9C/+laozZN3A9p/XDgi2MDuMc4lgT8kkz1TgPTOuZCJXAUBwLpzE9u5kEjQqghbFJ4ufbnr0P4k/z2uGSUOiTmRN0zbj1wMIxSVfkmytNX8Rz4vdI1joD2JhwiLmTYSYLdERcJzcNNSZ7hFJXXzPO48VndgiJgK8o0lmEoWnwIR3GEHBo7yWetS/slCC2ZxLhv8rrkvZKbAb9/EleQ7g5cKJ4fLp8F3i8jCZ3QjqljEkkkyKRr96P7DC3QqHAXtJA0H8m/k7FYXQuhjgNxhNVDiS90n7nW5e8lDa4DFaPMbjxnuWl0gn/dkYuJUF6Y3fD/oswyHurB4uOalxahBHpwPG7Oy8qsThdqmQHHw2Z805PvwzOSAsrDenIDxf2mMBlpeJjqzvyuIZO5JVFgCa4geQE7exzwJBdRlD/Mj88RWjqGCxWee195IYfEHOQmTOFCAhNpM+Bal0A0Auh05ruMduDzeP7tVtjR1mZ2nLbm6CwtKuz80jyTprY028ncplgqFpdLW0z/vCBoMlwmM990ZjQHFWVuAf6W7hJZVDpADZpcFuY4oa5IuErGh6WfHBeDjkJruYanhSERVgLZ2rWUr2ywTedL85JWvmHTZgrBlKWqZDXhsxwgi8oBkAksTqhbyBQmoYooLthSa2IRwP+SSGpc5ZUuk4syvOA/uw4d5jdoeob4XfrLXKuS4EpzPgpQ42g4NgFYaGByq9rBXar9BdBDlQ8wDiXlPhUeotQCElTh2pqSVWCGc6TWsb0mBnwDhiBGxaSxgWMz5r60xFak24Xv4OZ+UuGKE2rLHBU7xsPm+cJxPb4Qj6aMJ7lB8F07aYNwbLcclkAyimPT84WLRRo3a14/WV1c07dDvnjtUVRd4QXl/PKKKsqzjioSwA4tM8l42qfzl6uRFUjPgcxl2oiTng+FyGhNUPiMYts4Hk9ndULdQqbEjyQfWYZNYDrLz2CT4KY2N/UcVzfKkRRtoPfDzYJ1Rxs8z0PQhbywHnRNLpxQl8CyLDGOeQmgTtPzWGialriOW8OwqrABy1bHOoGmGDbvGhMVwdCtDQh2ndJLa3Oicc35pH8Nv0tWWuHBEiDG+4bxHG9+DN7txHF9mW/S5EfLGLYEx+DDS/AU5nldJn7WJsRBNzYqfMSTQvBAZNEETGm+W3MfjKOfQE6TNhDH9WBZUEPJRQSKYZ1I81rXdJHHv8sofW17oaYYJde8UUIn45m6VMG4HliO28s8JxyFJ5ZIC44LKRdoHremZBVsAnUoj618yWRUWmeUeUwPkXfyjGpRxLtyOm6//HLSspRzIPP/uR8tSzR5SBPriMzxOgBnlX845PNypBo3GMKr6wstmwPSzqoDxVzMub1j27RuoHVlh1dZBivXBmlwwlnIBK9DXn8tHpDsjJE04UL6RbQj43U8JPhUzm/u3G43vCYAGpr73qjeI6UhU0/r0oa4dnFJCLjOVJLJ+FFTJTuh84Xj6HUgi3xkVmJUeLRO0ZBa7rownSDoutpmno8t0U8n0J0t3BIYlcMDEGXhVh5CXUDM04SyqoSKV+rG4+bFIdK8NzR8G6mxyVzivjI0uGxO59ixjIpAaQAx54Bs0uggKAneyqoqFV6VqcbhqHVcv+aoTpxRs58cuu04SaCp+4nEa+KKO/AZnalehTBpZeKJSbnaUSAY9RiTDezq3nLXsV2LkCcbyW42EO6oFGFYfLq+4nEddzpOqHnWjm7Ius6fkagm7Y48nzdNKZ7jzs42o5CoTEjh9QFcmGWbJd3Qhyr41i1tW8NvCqGS8sZFhRF4zjZ2Vkr7RKjKTUB0nJZl11LZqwx+swRckU8O/1lOLe14n5rfTNLQCC9AOHm6J/naALtkbJn7NAA43AByx3mY1phMSAEazhUP1ikEFwpJYkAO/Y7I1ebmNKV2Qlh5RxLu68hqG6ehHedlALC8yEfXVYfaJUmzWweoUb54K4DaygJlsrVQVCIA+dc0sN2x4yIcVScgaw+SpoHyct62FmrcAAifNJPxt8zN5TOmpN8jgbBOnUPs2E4XHQ6EASCTFiUJOJ8RHhelKXvcUstyuHXJIIReU9sZ+h3vJY0si97bqQm749YzkG8wd+V0fcKTFImcT15mIUhpX8TL3uJ2LhJegBIQaMoS02WQtcK0cdz+zNOJdbhPXHUftZyG+wh0nFugZXVOKeVLZMIIAv5xAALMcZ1PTaNL4fdA2OvQhcJxe/nXcRlj9H6yMlH2KVHyMtKVS7k5URk4SfXM1FiOCzhqpV1hhuMyQ11J6xXKRZc4RYAuWZ9lYT/Wv4AXYUTVtsZpXJk9hpvnQleOyyr5JRwoyifmSVBViVuXljwPJBuAgy4JHoIfV6/Kc3OTKmccOzYdctXlgesaFKYd22Nb4EtLMpEoN6XYwf+gulaY1lEXjJub5Is7dlxW3rjswgNlleROAuilCI/NVlqVzChzg9odV5FhMfJ8b1JGSV1RoJDk8ADgRLawoUr4LRKQoOQS18LXcZWY/GveBDOp3gC+OG+EmSYbrW06n8hsHpfP7biKmppr6bjwlK57bdrElbZqZ8T9Fdeb23EVGWZ0XCdaYEIym4wnXZURjq3kjcMuRwF8Z4I7rksWmg4jonbDZY5CrvRNikuYd+y4KutUZ11SGDdKmGF9wqfGRmA6y8w9GMeOC5jiOmEGkBYVsoIVqvucSdCsSxmklStXqgMHDqjrr78eReeqX79+ypGjdqU1a9b48rVAYL25c+ee896nnnpKffOb3/SjjoUQV6DVvWHDhhU/MVO7g+wtRsCAA7kctyvzzjvIJKPwFq15mN6I6kQ1WABuxHPGTZURGzmIbgyOm4zReWWKncg01UMi4HGTVvE/Mrd5aaap7j1GLox2IpRD8sA8r24BA+p32WLtlxvt7kNyOyTKPKMNAD9pGB/9H1WJlRBqHmSHcFNlVVSsjlLkcIFOgztuJ0bmmCwzxlqnBh8ErukyzExOYjVeK42Tg3+Bi+DdTviOxEeEwvxwc64ct5N/LUuEkWsBmdClQ4PRydQk+u2Fkp2TgHT3CWgUoqeOHTsW/n7jjTeqF198UZ06dUr73uA4av/+/Z7DVNPRxx9/rM4//3wrn/vwww/VmTNnwujF4cOH1cUXX6zOnj2rLrjggsZ78Dfo5MmTjddOnz4dHvuSSy4J3/uPf/wj/L4BAwaE/+/q6gqtMzoW3j9o0CB19OjR8PmfOHEi/CwR3oPvx3vGjBnTdI4fffRRaPrjs5/61KfCz+JccGz6TnwOr+M49Dqtv0DJqBEjRqjLLrss132UtHHjRjVt2rRQFubPn+898cQT6v3331cPPvggQGStjAQ+tPrZz37mQTZMUiGh5nD98uXL/b7dSkuBme5NmjQpvPj77rvP3759e9P/A5O9cXGrVq0KHxboc5/7nBo8eLDatWuXuvDCC1Vvb2+42PA7Hip+4r3wUYYOHapuuOGGcLPB+8ePHx8uzmCzCH8OHz48PNbbb78dHhv/14UfTNwPhC9mzJih1q1b11hEWFA9PT3q+PHj4fkG7kq44OhaifD6F7/4xfCzCA1iY4y7t3GEjVX3WQhRX01wLShYp00b/qJFi9TixYt9E8fGM/nFL37hYT1cccUVuY4BAe7u7g7P56qrroKAe08++aT2/AIN7k2ZMkWNGzfO2s0yxvClo0wMDtvD3Absz5G/uDYyNtlGwXpSNKAKLCc8Vp0lIKdrKW2CUYmVt9Y56Zzw/zgzG2sR8oFn0xKfOs4Phg/B/Wkel0vTa0wOA7fJQCBt+FhyzpLjfAxfVNd5BOATfFYArhAE3bC6IgzFktXPxXrWbZpx9dYAmnEdMmpUpDox/wc1Y3CSisMBHiAfVg4b06GIZS4ck2E20ihx6H8nMBZ1VNJFEmPNQDFkCZfZso7i1ndUTjcUGkJbUZ+FRoagx238QM1LFWpejSJPPEr7RmXW6Bq6cfM7bvyOKQb6WFZ9uONkzoMER/UMM8Em4sc4v6xrIq+yyR2Po8R1nQbH61G7FE6Ua7G449dVW8uCesfpGc8+T0ILJXPYOi/0x8sT5kKqNJRGlDKJcjXhquYtOy5ketMuRtqZ75YwP5IeQlSwXZdHXgbban/jOJ0PayJfAcegDramOakXWZSM6Lr5QOChSHQCX7QzijGzEsge3ymj6khxY5K0om4gXhlsusOj7fMtwzUpg23MmcKzTOo5n4fTChySsri7iU2L+gNEtcqm+0DgWd6JHpk/oJvbG+WHyHARb8wPEzxvaKAu2po2QDzcuoWQTLBuakXZnWNtKIg0lYdQXth0IQckmBBm3doGMAjZMIWC56rKwYPAScuHplu4yDijC+M7ZxyqGFV8XgabagpHLokzraPjwWWlcJreULOY4YSIS5eSZAcaPQoLgOzksWKMJJzE+cAS8aYbHHfMMpNPbGlr2p15nrvj1gi1jbyHtH0CsuJDCPniM0WKO4zW1ZIJkRS/hAkSd6xWx3hNmoRJ96OTGYsXLhr3G02UcuIYOCbQY/ixNrCHNA0Nsgg0rFhT6y5TcB8aFGZzml0K6B6NnJVaO+nkWxHSkkisKaHWDSx3bDZ0VEasWnKamW5JCTEQehs9wDOZ2TKemFbAeScI+BKtRo1tJUC4eHWxdFCTZZBRsWGTnKYfAMedADLDSrUNDqZ+Y9TITtpdTZ5o3vRCkwwLoy6hrTozgCJbEyvipmSY4DR+L4QY8oEQW1n9+jKHaJLCTfCHizbg58kDacIitthUA/ZWA39V5aQEJVO5+HWKr5cm1DAzJKCBXQoPJUqr4nVo9zxmrK7PWd38u6qE6KqcQVbWIpdFRO0u1Oelqbl+9dVXQ8Br8ODBvud5/pw5c/yHH344bDjw7LPPesHFeYHT702dOrXxGTQC+MlPfhJmPeEzy5cvDztqpC3sL4sCPyfyfyhyp4YKRejaa691rVoEQUGURehuYoNMrI2WNUnImm4XZTKn9Z2qlDMdl/nm/OriCDJ8TawLhJ7ARVw3+KywKuE24ViwJoEw28rmq+pEVmsLUifYaX1UPGjcMCqEtxG3BjqKB4/jJ/m8JgAO2aDRpsuAa5L3Dc+DNku8p6rFJkXKHMuuGSgDE+DurjGhxs4XVz4G8xqaHIsIO29cKKFohpbpGmV5o6gDqsxAMuFbx/WDNsFxw9iiQi94PS6qUXYiismQlq1KLdN11rrYNs4fGxRkivcGT9t6K/M0AiwC3S6PRUtVTpTJg78BEuEGZ+0gEWdimapk0tWD68aT4hqK9iiXLWSrBjrp2k+V5d7YGvOKNVjljQjIPBQVGIoRcoVYtkwtJnlLu4mkik/jCyG0iPsRmo0HAY0m/RUIEd5rc660bg5wWr9eCrmp+UWt9KtNxT/LchHKRI+xGaetLLSZMINnhHUL5YbEraioEQSarF38zgU8rcVYKMaKk8PuEXWC0IQwIWwkF5hKJS3aubHV8eqsFUOt1GxldHIts7VUFvObwpqoo+byAiVDCkiniLDRIjeET/koLNRVFRyT5mJZgIeNon1To1pagdKbbkpRdp5AFvM7TQ0ANn0oQZxvEZekK6lBebBLeLD9t2zZ4u/cuVP7vqTG8N/73veMT964+uqrjR1rwYIF/rx588zMBo6hOXPmoAG90WNiOoVJChaWeuaZZ0oJp/76179GHoCHBvqYqIFhC1hzeSdWIG6MyR0DBw4MzW4MjMBgB+RL2Dj/IUOGpH6vbNwfWJoAwTysY8hP3iECuePU3LGHr0ztVgBywP5PCo/Y8J1MA0+2+n/b1IQ0kLCKbk0ehu9bxFWDYrGVPWbCwiM5MVlXYLWemsJO8MtglsDXo7CCDXSzLyOp0qZsGSmwps+vbLCM3DOTBUFQPGXE4bOCrDxUanMoZG2nDNoQats7qI0uHKbHAZdRslgWnpEmSlKEs4Zpea5CHusVaz7N866tUNsqiLcdZjFdDlhn89tWyaV0GW2liWZdKxDKJGsQQgtLAxsGNgEg30DMCRlPg7h3pfG7165dG/6kkaNf+cpXGhMnTYwBzUNGgQVGgcvgz54929pIXdy/KhOApTIIQBEAsbwjedMSQLMHH3zQ+/a3v20cLOsr60xNGAlMgBlAPYzeff3118NxvXv27PH/8pe/KDkNVhLGAydRrFADSQwEN/ZmBDtIWAWDUbHXX3+9Gjt2rIcZwxjFitG1dVt8qC5buXKllRG3INsIe1U3S0kjR44MN84ylMIHH3xQiXv7yiuvqClTpqTaXCBXcsQx6Fe/+pV///33e7nR76JjTOCf2UowsOFTc7YJZJhMQqkzUIb7QD2v4ZbA5CyyXqA5KXcax6T0SxPFSCZ86rxrFog+GKZ3GpcldY51XgDFVOli2U3m8ub1pgEzTJ57HbLesoQVi/jZZXduzSrUfNStTgFizeGYuAdFIjGR5veWLVsaZsAf/vAH76tf/WrDF9i7d28o9DAPKCHl0KFDYQ7yunXrmo7z5ptv4qSN+6gw8SWh4UFUgkxWCjYj1Pt68IOy+uRI3gh2VjVq1Chv/Pjx6pprrgmTZZAoAh+vr8tkYbr00kuNm4hlNi/g1/H88897eZNOiO69916wt23btvA5JPmnRSnr2oCrgWYiSLTBWg3WhxozZoz5E0ubBwz1DySOhnzDtCHTCbsKb3fEW6Pic7bqS8swD22EUUyVBRaZYdwJRR22y13LSnPNyl5flpM2RbS7u7swYgiU8+mnnzauqQHMIaPq1KlTie8lDR4FPsRRsFl5WcEjtG8qS8sFz8/ovQ20pb9p0ybr542WVWvWrPGsaCpGQJaBfK9evdr4sQOFltm6gFyB+vXrp06cOKFOnz7diCoBDcff0OR9GZNhKiquAZEmYAZY95CpWICx6KSMJF/b1k5cVj9taK4iVUG2J1PW1acusxWQLY2dB3cxcX8LNR5ctmwZUEkvcN69Bx54wJs+fTrS75reE7erBwKhZs+ebWUHPnv2bCmaEDs8QhFZiF8z7bg26KKLLjJ+zDRxUBP02muvlWbNBBanlePmaWgILZznOQN3SPu8I83vNITuoDANEM9GEgFOGAAbzFzErG3GZPHd6G5axqKAqbhnz55MZu5tt91mxeSTDzsw2Yya37fccosvwU5bBLforrvu8s4777wQNAL4CbA1ryKgJCmsQ8SmAerColuxYoWVdRIc2xsxYkSmzzzyyCPqyJEjofkN14M67EJmQDDFV65c6e/evTvMmZCAIl5777334isK65omGhceqAKgY3s6hOqraqpLj+w0DCC2SH4AfM4ye64VzbvHBgZLDmsLNQG6QfR5Gnim7ohBLVfxE4g3TsZ0MUGVkk+UgbZBtpIebEYWWiHUpnMZsOhtNKSQWFLeIpOs9xi4DHLyIfxp4teFw0at6n2cNFGwiLCYAkZsJ0PYmPFcZutglKHabGkEa8nW9eTtJBoXzsR6AaiHUDH1A8yjOGOBsnnz5vnSh5MFCQgXlFUEkDfwnzWMFZeQQiGJNGQrf5woa0FByhBeKc8vEGi1b98+z2auOWoPNm/ebKU4Z9q0aYWSbaLCb7t27QoVVm9vb/jaoUOHUk+2SeVTq4qUK5bps6JML243zaodbSdA1DWkZaNndlmNB/OEOfm6hbuBdZQ13AmTH59Nsm5SmbfwoYEiUsI8mMeJWyHUNuPUfCgghBL+DO9YAlwhS4667ONcZaGmjDJbbXWJAQqVBaiavhZTs8vp/KgABRsdhJbOF2tO1yknqeNKqnrqRx991EeYYNCgQd7Jkyf9wGxS7777biNu9sMf/tC//fbbm0JAFJ9FnNtGCWaWOHXWTLLvfve76v/+7//CMsQf/OAHYeiPsoEQanjppZfUhAkTUh0Lx7Bl0vKBhKaImumZyqGPovXr16vRo0f7t9xyS5hVhlgyzEzcL+RCvPnmm2FYqn///mGIaujQoWEWFZ4BwjkASvFckYUVrMvwPbjPUDhwB7FG8ZnFixcbDWchm6tIFhzObdWqVWFoCuEwXCOPXQfKqtHg85133sn3JXGa0MTwd5O9p8pEv03m9dpqUWuj9XIrGw/WgWGtmmxtnceKSwKnI4Ey7CIy+K3TgElEDr9pQt6sTZo2bZqxHf6OO+6oTEZTEvXr189TjrSEzEpU2WUhJGWJ+6sFJrOMbwagFkddSSeDEkKYOCCYOSgnxO+BpgxN8iuvvNIjRA/J6JSATgjfF77wBWvZVLbJVAcUPMj58+d7mHdt8vyQhWWajh075jvxPZfw/G699dbMn5OFF1CWJFOBW+rBRYAcwfJE33O4G4jsoHADeRFwR/A6lCNlkSWa/y6jzK65RQwgpA5xatsFKHXkLDOzajOfuopcVpUWUhdNnbMuDbBq6DcfnerY/ABFm4MjM6HfVaSyqrRQDHDPPfcYQfC//OUve+vXrzdm3k6ePNn49cIUTFOj3gn0xhtveHJcThGCST1y5MjG80cVY2CKh911YJab6oRSqEqrlWSqiUNa/91ENdSOHTvUxIkT/aqdV9OCKLHBQ5UBsZtvvtl4p9M03XlBqF67/PLLIfThs6UwX+qKMNfMv9wQl8l2QUUym6qQ+101/x2VUjbNYxOjgtMUv7ixOyXPU0a3SOUKOkpnXc4FqqUQlweImbUCL++ahXIATgPhzINdpPHxa+tTI6OtbFqyZIl64oknYt+zfPnyMPwwePDg0GxCbylkS9E0CoRFkkb/piEbnUTLpGBxeggX0oQOZJMhCwxuFcI8lCWGxgkI88j4Lid8Nm2Bj+2JIHGEc0RXXurMu2zZskamIhhdepH5uH//fmSd+bmz+mzNL6Jxt3n7Z5c9yjYtJ/WlLrP3tI1uomUNyCtjjlY7MNJeYd1BjlCHkGaCbCmN3mzUzLbC/FYpUjPlEASbjGqyKs/PVi1IH3acUE+dl2SjN2SamSbbaaJRhHAPEvLjsscwBKCMczl48KBxpFo2lrRFtpoBVpnmzJnjP/7442Ejyyx1+UDNs7zfqmkMMABlmTYQxSydT2xwnBlUxqABQmvrqqltdjypqhmtWG851VfMARmBeQ0ALarLCQ2ISAuMFsqMoX5lrehVVnZIK2tooYxzsIF+l3X/ysisqhKnbeqB1ltIS6XpN7z/PpoqGhVqgF/YUXgRt7JUOF6VsTtJHNcsQZbYqYqnsJYt1FmHy9Wdyyi5zCTUadvBxBVfWElcr0D8Myq+WYZ7gBhrXSMKdSuSMJn7jQ0NQo5NOUusOu0kzFzCE7XLcG2NRY3NgNqhpoHiq2x+I3lB9wDikgFstwQyralNDe5TLSpGqSvDCobfDEGPax+c1mXJZeaiOR1OAmElvrtjuFpURpLpuGTZzfxVjgH1NsotOaf1saqKUdiaXd4OjOcB2QIYmnUTTDVFQMYW8Ro1SUvbmNy0qVhmPDiJ40be1sH87uv31ZJ716q+8WUyhBPXmQccpLRiPB+j9dQqYsJlmjxhdEPEBdkIYdjs0mkqQ8pmi2ATbXbLAPSSGOsKCsNUQ4qqMcekIDPAE9J2pKX1k2UDN96MDpVDSGnL0kY3L9v2WbP63LYqc/Kg77pxOmiAAHMOloWNhg2mcAKsIVIgrWg/XWY3GeAYcGVNbmiFu2HSjJ+kkBZ2YtOxybLylIuWZ9qyKLIMkzP1nWWb6XUXariJaZ8/1jMsp6JWbabAOU4OpgPs/DRoNi6IT3ww7VdTpk2VWLfj2moRXMXJG6bZdDuhVvjTis1iy2JdQtawqWWNHKVGmvOGpGyGMWyatqbjr6a/B75WJ9RJ172ai4BkPiUTsgRFCdM7TW/9OCC2JU0SeCkiNL3peHWrUNusZrjp0apZMYu6Njeou6am2H9UTkEaKy5rhKC0wLotZJPyYqsm3DbjwFnCG3UX6jIH6dluaR23fsk1xfvg3iIHgTR8ViyqLWKAVVyMusQKJOe0KrZbV6FuB/Q7TtBpAJ5023jbq8r2/QZSS5MzTR8bpk0VF6SMCJjoipK3MivJkqmiG2Oy4WMrGKAY/OGkyBDkQkYyKJMsT9ag9RpSnS9pOoZdNW1NcUk8VNMmeF7NVdfJG3Wt5sKzBghGmhh4Ep5d2uImUlR5gEIrF4TdNQq6p4s0DZhVNZlCPpQiVkWRkGBdze+6ot9xwChcs7Qh4ZaO3cHOhDhcK4oRyhzDk5WxQ3OXI20Za9Fkk3YR6jrmhuvqEnShK2T4AQgs8lytCDXMI5xcUoM87Li8WSDid6Zvpq0kD9NhmTJCWHUI/bWrT421Tvcb8WhwUlYZtLepRiO5TzpN7S1MTdJS+Iw0kW2AZmmrxlrZ0yxrEYWJsI5Dv8tjrlwAlNGGDOFOcr+ouKVUoeYdPXS7P06a/CCY5FG+hemUUR4mqCIazrOCsnRFMWV+uoyy1lRlcYZ7Sps7LJA4CxfYU6maWoekYnciZA8LMcncs11mV8VFzHfgNOdnMpuqasUv7Y5+x1myqEKjzQpCrns2RYZgFGrWDz+AEDosWMqO0TXAJ81eFvCBDabs9jxpQLO0xSimF3NdNXWdk0/S5CWQMsR18mdUpKIxt8BQIglOShdO4r4tzOFWAR5ZEPkyNQ/uXVSM20ZDiboCZXUv6MBzxjVEWUoEoEEhklDz4o9S0e80oZm0s3/KuLGUS1ulvHC54djMc3Zx6mo09IcSTHKF0nYNNS7U1FSPkkk4NF/VBwFroQomOeX5Umwdf9ve/OqaUdaug/SikHATG7vXt4vnIs/zwg9jNOuiRYu8r3/962rgwIGVn2mE0ae4eQsWLPBbdQ6Bie1h1O2BAwfCkbe2adKkScA2wt+HDRumjh8/rrZt2xaO2MWo2D179qhjx46pyy+/XN10001e8D8fzxKjeDHHCTPEQHSuH3zwgbrsssvU1q1bsWGoUaNGeXhvb2+vP2jQIK+rqwvX6OPYwF0+8YlPeHwc7ZkzZ5C34Hd3d3u7d+/2cayxY8eGM8j279/v4/j4zI9+9CM1ZsyYtp2vhbX46KOPhjkc3/jGN9S4ceMKH7OQUGPQFxaIiRNpFQULSq1fvz5c5IFWCBfT9u3bjX/PnXfeqSZOnBgKMgSpDEF21JlUSKjbmaBJsIuSdjl58mQ4CB2Dw2lwOaYRAjTkr4HwO/z4tIPQHTlyQu3IkaNIOs/dAkeOnFA7cuTICbUjR46cUDty5MgJtSNHjpxQO3LkhNqRI0fVpi53C+wTklSQxELJKZ1GSMb561//GibqIOV08ODBasKECW5h2KJ2H/idNIsLHUlQ5EGliVQ9xUsVs86tihv/i8KKtN0k45od4PxkkQYKBPJ0oOS945ShgXz8HutKc1Fjn7dmmDrV0jOqQiVglbijL56mecqFKwUyT+fTpJZKEMg8XST5ZhM1XC1rPXZUbXdRoUYJoRJ1w7KqL20fbLlh8hbUpkck152dT62hoUOHevzv4cOHZz5Gn6A0aMaMGWjuHjIInSP7GhBmoi996UuN31GEEgj5Oe8JLA+/yLkSUVVXXqIquECQw351s2bNOue7Xn311czHRWXbzp07w+OCzp496xatA8r+RyjQ0BG0B6c+87QQPfTQQ97zzz/vobSRFuOuXbtyLWhOa9eu9QKN2LQJoeosC6HSLjDbUQfgPfbYY03Hwt94HZz1XOk83nnnnfAnrv/nP/9503E2bdqU+R5ccMEFTcctuvk4oKwDCBVanLq7uzMfY+TIkU1/Q5uAoWGKHFdq5t7eXiPXTNVoKD0lQg21qUoz2sjk8U6fPp35WEeOHHGL1GlqlUojR1FfS99CGwNQ38Csb/yNxgL877RE2olrLWhaLjhF6L///W/T35dcckluxDvuvInIHclCM2fO9Phn5b12Qu3M70S65pprCvvUEDyuYQ4ePBjpy8bR2LFjz7EAsGEUFRQidC8xQTJ8N3ny5PDn22+/HTaMINq3b1/ue9s33saRM7+TNXCw8zcBTSdOnCgs1NCoAwYMaAgdQK48prNuIY8aNarxnTj2kCFDct8T6RKYEhzqJnPvvfeqjRs3hq2vyGLJa2FRi6W0m7MT6g6mPvS7IdjogJKV0H9LalQCeCDQOr87i3DoFvnRo0e1fquJjS4rIeGGEwngiBEj1Ny5cwsd+9ChQz7hC7hmZ3478zvSRCRC87w8GkRoPE/6mLQ59PT0hD8lkp1ywznnNQkc9c3BzkXI9rKBVxRxCSShSSLfxKT74YTaMB0+fLg2Fx8VqoKm7htkHxI6YubQeE2aesqUKf7MmTORfNEwzckEzUK8IydCOUuWLPGnTZvW9F0LFy708t6TdevWNR0rz7XrfHOyTkzQnDlzPCe6JZrfMK/qQrrEDZ2WMRGnhvkJDU3mMzQXuormMD2bjvnSSy+d85777rsv93n2ten1i/rUEv02SQ899FDTxkPovyNnfocINKfp06eHPwl4IsoTS6Ue1jp/+O6770Zv61zahvxybAp0vkRLly710E+8yCJ//fXXK9+J8oYbbmj62/nUljV1nUimf1IGVOCzNS1sQq2z0I4dO5qO8fLLL3t5NLPOp4YvCeHG+eK4WOSmKsBGjx7dpKnzmt9RtHHjRrVixQp/woQJYfN/NOqfPXt2pmNkzZhzQt1BFKWB5et5Mr9sEaZogAgkgl9ts6QzTzhPmt/XXXddw21ARt3q1avV5s2bfVzDc889l8liQZxbkgtpOfM7kaRmzoMTFIkVx5EEnEyliRJJgC9vMgpG9hDiDUGm8yakHsMR8hBtZkTY1EwlzDihbgOaNGmS9nXMguJ/83zoDGZy0zFMhYokmQaJZCguT9abbgOijLJ9+/aFmwbFrbOSLN7AcUxvbE6oa0yYo6UjmIumFrbOHC1CJvK7dURgkwShimhBLoDvvvvuOVYQog9Z763O1ciTQ+986na9+K4urfC99tprTSZonmF2UhhMaRNZGGEq8YLi32vWrPFN4QmwhDBEETRx4sTwXIPvaQBxMKVRZ56FCP0ngon/05/+NBRsFKPAIjABSNaaOqUbRFSbH3TRoK4caBXU09PT1JkDnUbyfF+wWJuOg7Y+Jq6Dd/xQObqcJDG6vPDjv/DCC7mPhTZQKqaTyqxZszLf276koMYxcD94Nxia/e06n3QA8UwsTshOorRKFOzz3OqpU6eqZ599Nlc8WfrQPGmkCMlEmL179xq9T8Hm06SpixR0II4OVwbzy3UUCHXme/uZz3ym6W+AcBw8u/LKKzve/HZTL9X/crCXLFmiNmzY4MO8hTCPGzfO+9a3vhUJpiURzE4IHMxC5JHDfzQBaq1atSo05XE8CNzXvvY1oyGttWvXhmEsIP4ACGEeA8nOSzC5Fy9eDNTbHz58uAcfevz48aGJnPfePvXUU+rqq68Oc+npXLdu3RrGvEePHt3xnUqdUDty1Gbk4tSOHDmhduTIkRNqR44cOaF25MiRE2pHjhw5oXbkyAm1I0eOnFA7cuTICbUjR46cUDty5Oh/9P8CDADaruV2fffJ5gAAAABJRU5ErkJggg==" alt="UPPTCL Logo" class="header-logo-topleft">
+      <div class="w-full text-center">
+        <h1 class="text-xl sm:text-2xl font-bold text-[var(--fg)] leading-tight">उत्तर प्रदेश पावर ट्रांसमिशन कारपोरेशन लि0</h1>
+        <p class="text-sm text-[var(--fg-muted)] mt-1">स्वीकृत/कार्यरत/रिक्त पदों का विवरण</p>
+        <p class="text-sm text-[var(--fg-muted)] mt-1">स्थिति दिनांक: <span id="reportDate" class="inline-editable" contenteditable="true" title="क्लिक करके दिनांक बदलें" spellcheck="false">--/--/----</span></p>
+      </div>
+      <div class="flex items-center justify-center gap-2 no-print mt-4 flex-wrap">
+        <button onclick="exportCSV()" class="tab-btn text-sm bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 hover:text-indigo-300 border border-indigo-500/30">
+          <i class="fas fa-download mr-2"></i> CSV Export
+        </button>
+        <button onclick="confirmResetData()" class="tab-btn text-sm bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 border border-red-500/30">
+          <i class="fas fa-rotate-left mr-2"></i> मूल डेटा पर रीसेट
+        </button>
+        <div class="relative" id="printMenuWrapper">
+          <button onclick="togglePrintMenu(event)" class="tab-btn text-sm bg-slate-800 hover:bg-slate-700">
+            <i class="fas fa-print mr-2"></i> Print <i class="fas fa-chevron-down ml-2 text-xs"></i>
+          </button>
+          <div id="printMenu" class="hidden absolute right-0 mt-2 w-72 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl shadow-2xl z-[60] overflow-hidden">
+            <div class="px-4 py-2 text-xs font-semibold text-[var(--fg-muted)] uppercase tracking-wider border-b border-[var(--border)]">एक साथ प्रिंट करें</div>
+            <button class="print-menu-item" onclick="printSelection('all')"><i class="fas fa-layer-group text-amber-400 w-4 text-center"></i> सभी पद (एक साथ)</button>
+            <div class="px-4 py-2 text-xs font-semibold text-[var(--fg-muted)] uppercase tracking-wider border-t border-b border-[var(--border)]">समूह अनुसार अलग-अलग</div>
+            <button class="print-menu-item" onclick="printSelection('A')"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block ml-1"></span> केवल समूह-क (Group A)</button>
+            <button class="print-menu-item" onclick="printSelection('B')"><span class="w-2.5 h-2.5 rounded-full bg-blue-400 inline-block ml-1"></span> केवल समूह-ख (Group B)</button>
+            <button class="print-menu-item" onclick="printSelection('C')"><span class="w-2.5 h-2.5 rounded-full bg-teal-400 inline-block ml-1"></span> केवल समूह-ग (Group C)</button>
+            <button class="print-menu-item" onclick="printSelection('D')"><span class="w-2.5 h-2.5 rounded-full bg-red-400 inline-block ml-1"></span> केवल समूह-घ (Group D)</button>
+            <div class="border-t border-[var(--border)]"></div>
+            <button class="print-menu-item text-teal-400 font-semibold" onclick="printSelection('separate')"><i class="fas fa-file-export w-4 text-center"></i> सभी समूह — प्रत्येक अलग पृष्ठ पर</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 py-8">
+
+    <!-- डायनामिक मास्टर स्टैट्स -->
+    <section id="masterStatsSection" class="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+      <div class="stat-card animate-in" style="animation-delay:0.1s">
+        <div class="flex items-center justify-between mb-3">
+          <div class="icon-bg bg-amber-500/10 text-amber-400"><i class="fas fa-clipboard-list"></i></div>
+          <span class="text-xs font-semibold text-[var(--fg-muted)] uppercase tracking-wider">कुल पद</span>
+        </div>
+        <div class="stat-number text-amber-400" id="masterSanctioned" data-target="0">0</div>
+        <p class="text-sm text-[var(--fg-muted)] mt-2">कुल स्वीकृत (Sanctioned)</p>
+      </div>
+      <div class="stat-card animate-in" style="animation-delay:0.2s">
+        <div class="flex items-center justify-between mb-3">
+          <div class="icon-bg bg-green-500/10 text-green-400"><i class="fas fa-user-check"></i></div>
+          <span class="text-xs font-semibold text-[var(--fg-muted)] uppercase tracking-wider">कार्यरत</span>
+        </div>
+        <div class="stat-number text-green-400" id="masterWorking" data-target="0">0</div>
+        <p class="text-sm text-[var(--fg-muted)] mt-2">वर्तमान में कार्यरत कर्मचारी</p>
+      </div>
+      <div class="stat-card animate-in" style="animation-delay:0.3s">
+        <div class="flex items-center justify-between mb-3">
+          <div class="icon-bg bg-red-500/10 text-red-400"><i class="fas fa-user-slash"></i></div>
+          <span class="text-xs font-semibold text-[var(--fg-muted)] uppercase tracking-wider">रिक्त</span>
+        </div>
+        <div class="stat-number text-red-400" id="masterVacant" data-target="0">0</div>
+        <p class="text-sm text-[var(--fg-muted)] mt-2">भर्ती लंबित पद</p>
+      </div>
+      <div class="stat-card animate-in" style="animation-delay:0.4s">
+        <div class="flex items-center justify-between mb-3">
+          <div class="icon-bg bg-teal-500/10 text-teal-400"><i class="fas fa-percentage"></i></div>
+          <span class="text-xs font-semibold text-[var(--fg-muted)] uppercase tracking-wider">रिक्ति %</span>
+        </div>
+        <div class="stat-number text-teal-400" id="masterPercent" data-target="0" data-decimal="1">0</div>
+        <p class="text-sm text-[var(--fg-muted)] mt-2">कुल रिक्तता दर</p>
+      </div>
+    </section>
+
+    <!-- डायनामिक ग्रुप वाइज स्टैट्स -->
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-8" id="groupStatsContainer">
+        <!-- JS will populate this automatically based on Data -->
+    </section>
+
+    <!-- चार्ट्स सेक्शन -->
+    <section id="chartSection" class="grid grid-cols-1 gap-6 mb-8">
+      <div class="card p-6 animate-in" style="animation-delay:1.0s">
+        <h2 class="text-lg font-bold text-[var(--fg)] mb-4">
+          <i class="fas fa-chart-bar text-teal-400 mr-2"></i>स्वीकृत vs कार्यरत vs रिक्त
+        </h2>
+        <div class="flex flex-wrap items-center gap-x-8 gap-y-2 mb-5">
+          <div class="flex items-baseline gap-2">
+            <span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span>
+            <span class="text-sm text-[var(--fg-muted)]">कुल स्वीकृत:</span>
+            <span class="font-['Poppins'] font-extrabold text-xl text-amber-400" id="chartTotalSanctioned">0</span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="w-3 h-3 rounded-full bg-green-400 inline-block"></span>
+            <span class="text-sm text-[var(--fg-muted)]">कुल कार्यरत:</span>
+            <span class="font-['Poppins'] font-extrabold text-xl text-green-400" id="chartTotalWorking">0</span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="w-3 h-3 rounded-full bg-red-400 inline-block"></span>
+            <span class="text-sm text-[var(--fg-muted)]">कुल रिक्त:</span>
+            <span class="font-['Poppins'] font-extrabold text-xl text-red-400" id="chartTotalVacant">0</span>
+          </div>
+        </div>
+        <div class="chart-container" style="height:320px">
+          <canvas id="groupBar"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- टैब + सर्च + टेबल -->
+    <section id="tableSection" class="card animate-in" style="animation-delay:1.3s">
+      <div class="p-5 sm:p-6 border-b border-[var(--border)] no-print">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <h2 class="text-xl font-bold text-[var(--fg)] flex items-center">
+            <i class="fas fa-table text-amber-400 mr-3"></i>विस्तृत पद विवरण
+          </h2>
+          <div class="relative w-full sm:w-auto">
+            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-[var(--fg-muted)]"></i>
+            <input type="text" id="searchInput" class="search-input" placeholder="पदनाम या विभाग खोजें...">
+          </div>
+        </div>
+        <!-- टैब बटन -->
+        <div class="flex flex-wrap gap-2 mt-5 no-print">
+          <button class="tab-btn active" data-group="all" onclick="filterGroup('all', this)">सभी पद</button>
+          <button class="tab-btn" data-group="A" onclick="filterGroup('A', this)">समूह-क</button>
+          <button class="tab-btn" data-group="B" onclick="filterGroup('B', this)">समूह-ख</button>
+          <button class="tab-btn" data-group="C" onclick="filterGroup('C', this)">समूह-ग</button>
+          <button class="tab-btn" data-group="D" onclick="filterGroup('D', this)">समूह-घ</button>
+          <button class="tab-btn border-red-500/30 text-red-400 hover:bg-red-500/10" data-group="critical" onclick="filterGroup('critical', this)">
+              <i class="fas fa-exclamation-circle mr-1"></i> क्रिटिकल रिक्तियां
+          </button>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th class="w-16 text-center">क्र.सं.</th>
+              <th class="text-center">पदनाम</th>
+              <th class="text-center w-24">स्वीकृत</th>
+              <th class="text-center w-24">कार्यरत</th>
+              <th class="text-center w-24">रिक्त</th>
+              <th class="text-center w-24">रिक्ति %</th>
+              <th class="w-24 no-print text-center">स्थिति</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+      <div class="p-4 border-t border-[var(--border)] flex justify-between text-sm text-[var(--fg-muted)]">
+        <span id="rowCount" class="font-medium">कुल: 0 पद</span>
+        <span id="vacantCount" class="font-medium">रिक्त: 0</span>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+// ==================== 101 Rows Full Excel Data ====================
+let allData = [{"group":"A","subgroup":"अभियन्त्रण संवर्ग","sno":"1","hindi":"मुख्य अभियन्ता (स्तर-1) (विद्युत एवं यांत्रिक)","english":"Chief Engineer (L-I) (E&M)","sanctioned":3,"working":0,"vacant":3,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"A","subgroup":"अभियन्त्रण संवर्ग","sno":"2","hindi":"मुख्य अभियन्ता (स्तर-2)/अपर सचिव (विद्युत एवं यांत्रिक)","english":"Chief Engineer (L-II)/Additional Secretary (E&M)","sanctioned":10,"working":0,"vacant":10,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"A","subgroup":"अभियन्त्रण संवर्ग","sno":"3","hindi":"मुख्य अभियन्ता (स्तर-2) (जानपद)","english":"Chief Engineer (L-II) (Civil)","sanctioned":2,"working":0,"vacant":2,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"A","subgroup":"अभियन्त्रण संवर्ग","sno":"4","hindi":"अधीक्षण अभियन्ता/संयुक्त सचिव (विद्युत एवं यांत्रिक)","english":"Superintending Engineer/Joint Secretary (E&M)","sanctioned":63,"working":0,"vacant":63,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"A","subgroup":"अभियन्त्रण संवर्ग","sno":"5","hindi":"अधीक्षण अभियन्ता (जानपद)","english":"Superintending Engineer (Civil)","sanctioned":7,"working":0,"vacant":7,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"A","subgroup":"अभियन्त्रण संवर्ग","sno":"6","hindi":"अधिशासी अभियन्ता/उप सचिव (विद्युत एवं यांत्रिक)","english":"Executive Engineer/Deputy Secretary (E&M)","sanctioned":248,"working":0,"vacant":248,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"A","subgroup":"अभियन्त्रण संवर्ग","sno":"7","hindi":"अधिशासी अभियन्ता (जानपद)","english":"Executive Engineer (Civil)","sanctioned":22,"working":0,"vacant":22,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"A","subgroup":"लेखा संवर्ग","sno":"1","hindi":"मुख्य महाप्रबन्धक (लेखा)","english":"Chief General Manager (Accounts)","sanctioned":1,"working":0,"vacant":1,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"A","subgroup":"लेखा संवर्ग","sno":"2","hindi":"महाप्रबन्धक (लेखा)","english":"General Manager (Accounts)","sanctioned":1,"working":0,"vacant":1,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"A","subgroup":"लेखा संवर्ग","sno":"3","hindi":"उप महाप्रबन्धक (लेखा)","english":"Deputy General Manager (Accounts)","sanctioned":5,"working":0,"vacant":5,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"A","subgroup":"लेखा संवर्ग","sno":"4","hindi":"उप मुख्य लेखाधिकारी","english":"Deputy Chief Accounts Officer","sanctioned":1,"working":0,"vacant":1,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"A","subgroup":"लेखा संवर्ग","sno":"5","hindi":"वरिष्ठ लेखाधिकारी","english":"Senior Accounts Officer","sanctioned":9,"working":0,"vacant":9,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"A","subgroup":"कार्मिक/विधि संवर्ग","sno":"1","hindi":"कम्पनी सचिव","english":"Company Secretary","sanctioned":1,"working":0,"vacant":1,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"A","subgroup":"मुख्यालय संवर्ग","sno":"1","hindi":"उप सचिव","english":"Deputy Secretary","sanctioned":1,"working":0,"vacant":1,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"A","subgroup":"मुख्यालय संवर्ग","sno":"2","hindi":"अनु सचिव","english":"Under Secretary","sanctioned":3,"working":0,"vacant":3,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"A","subgroup":"मुख्यालय संवर्ग","sno":"3","hindi":"निजी सचिव (विशेष श्रेणी)","english":"Private Secretary (Special Category)","sanctioned":1,"working":0,"vacant":1,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"A","subgroup":"मुख्यालय संवर्ग","sno":"4","hindi":"निजी सचिव (श्रेणी-1)","english":"Private Secretary (Category-1)","sanctioned":1,"working":0,"vacant":1,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"B","subgroup":"अभियन्त्रण संवर्ग","sno":"1","hindi":"सहायक अभियन्ता (विद्युत एवं यांत्रिक)","english":"Assistant Engineer (E&M)","sanctioned":698,"working":0,"vacant":698,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"B","subgroup":"अभियन्त्रण संवर्ग","sno":"2","hindi":"सहायक अभियन्ता (जानपद)","english":"Assistant Engineer (Civil)","sanctioned":62,"working":0,"vacant":62,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"B","subgroup":"लेखा संवर्ग","sno":"1","hindi":"लेखाधिकारी","english":"Account Officer","sanctioned":53,"working":0,"vacant":53,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"B","subgroup":"कार्मिक/विधि/अन्य संवर्ग","sno":"1","hindi":"सहायक कार्मिक अधिकारी","english":"Assistant Personal Officer","sanctioned":1,"working":0,"vacant":1,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"B","subgroup":"कार्मिक/विधि/अन्य संवर्ग","sno":"2","hindi":"सहायक जनसम्पर्क अधिकारी","english":"Assistant Public Relations Officer","sanctioned":1,"working":0,"vacant":1,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"B","subgroup":"मुख्यालय संवर्ग","sno":"1","hindi":"अनुभाग अधिकारी","english":"Section Officer","sanctioned":7,"working":0,"vacant":7,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"B","subgroup":"मुख्यालय संवर्ग","sno":"2","hindi":"निजी सचिव (श्रेणी-2)","english":"Private Secretary (Category-II)","sanctioned":2,"working":0,"vacant":2,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"लेखा संवर्ग","sno":"1","hindi":"लेखाकार","english":"Accountant","sanctioned":186,"working":153,"vacant":33,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"लेखा संवर्ग","sno":"2","hindi":"सहायक लेखाकार","english":"Assistant Accountant","sanctioned":90,"working":60,"vacant":30,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"लेखा संवर्ग","sno":"3","hindi":"लेखा लिपिक","english":"Accounts Clerk (Office Assistant Grade-III)","sanctioned":98,"working":57,"vacant":41,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"मुख्यालय संवर्ग","sno":"1","hindi":"समीक्षा अधिकारी","english":"Review Officer","sanctioned":34,"working":3,"vacant":31,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"मुख्यालय संवर्ग","sno":"2","hindi":"सहायक समीक्षा अधिकारी","english":"Assistant Review Officer","sanctioned":27,"working":4,"vacant":23,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"मुख्यालय संवर्ग","sno":"3","hindi":"अपर निजी सचिव","english":"Additional Private Secretary","sanctioned":6,"working":3,"vacant":3,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"मुख्यालय संवर्ग","sno":"4","hindi":"ड्राइवर","english":"Driver","sanctioned":6,"working":0,"vacant":6,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"मुख्य अभियन्ता (जल विद्युत)","sno":"1","hindi":"अवर अभियन्ता (विद्युत एवं यांत्रिक)","english":"Junior Engineer (E&M)","sanctioned":1423,"working":1251,"vacant":172,"remarks":"07 JE on Deputation","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"मुख्य अभियन्ता (जल विद्युत)","sno":"2","hindi":"अवर अभियन्ता (जानपद)","english":"Junior Engineer (Civil)","sanctioned":180,"working":100,"vacant":80,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"मुख्य अभियन्ता (जल विद्युत)","sno":"3","hindi":"तकनीशियन (लाइन)","english":"Technical Grade-II (Line)","sanctioned":522,"working":249,"vacant":273,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"मुख्य अभियन्ता (जल विद्युत)","sno":"4","hindi":"तकनीशियन (विद्युत)","english":"Technical Grade-II (Electrical)","sanctioned":2925,"working":2144,"vacant":781,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"मुख्य अभियन्ता (जल विद्युत)","sno":"5","hindi":"कार्यालय अधीक्षक-विशेष श्रेणी (प्रशासनिक अधिकारी)","english":"Office Superintendent-Special Category (Administrative Officer)","sanctioned":6,"working":6,"vacant":0,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"मुख्य अभियन्ता (जल विद्युत)","sno":"6","hindi":"कार्यालय अधीक्षक-प्रथम (कार्यकारी अधिकारी)","english":"Office Superintendent-I (Executive Officer)","sanctioned":15,"working":5,"vacant":10,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"मुख्य अभियन्ता (जल विद्युत)","sno":"7","hindi":"कार्यालय अधीक्षक-द्वितीय (सहायक कार्यकारी अधिकारी)","english":"Office Superintendent-II (Assistant Executive Officer)","sanctioned":33,"working":31,"vacant":2,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"मुख्य अभियन्ता (जल विद्युत)","sno":"8","hindi":"कार्यालय सहायक-प्रथम (वरिष्ठ कार्यकारी सहायक)","english":"Office Assistant-I (Senior Executive Assistant)","sanctioned":61,"working":38,"vacant":23,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"मुख्य अभियन्ता (जल विद्युत)","sno":"9","hindi":"कार्यालय सहायक-द्वितीय","english":"Office Assistant-II","sanctioned":422,"working":237,"vacant":185,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"मुख्य अभियन्ता (जल विद्युत)","sno":"10","hindi":"कार्यालय सहायक-तृतीय","english":"Office Assistant-III","sanctioned":521,"working":426,"vacant":95,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"मुख्य अभियन्ता (जल विद्युत)","sno":"11","hindi":"आशुलिपिक श्रेणी-प्रथम (शिविर सहायक ग्रेड-1)","english":"Stenographer Grade-I (Camp Assistant Grade-I)","sanctioned":11,"working":8,"vacant":3,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"मुख्य अभियन्ता (जल विद्युत)","sno":"12","hindi":"आशुलिपिक श्रेणी-द्वितीय (शिविर सहायक ग्रेड-2)","english":"Stenographer Grade-I (Camp Assistant Grade-II)","sanctioned":25,"working":5,"vacant":20,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"मुख्य अभियन्ता (जल विद्युत)","sno":"13","hindi":"आशुलिपिक श्रेणी-तृतीय (शिविर सहायक ग्रेड-3)","english":"Stenographer Grade-I (Camp Assistant Grade-III)","sanctioned":0,"working":3,"vacant":-3,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"मुख्य अभियन्ता (जल विद्युत)","sno":"14","hindi":"चालक","english":"Driver","sanctioned":233,"working":9,"vacant":224,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"मुख्य अभियन्ता (जल विद्युत)","sno":"15","hindi":"भण्डारी","english":"Store Keeper","sanctioned":22,"working":0,"vacant":22,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"मुख्य अभियन्ता (जल विद्युत)","sno":"16","hindi":"सहायक भण्डारी","english":"Assistant Store Keeper","sanctioned":155,"working":4,"vacant":151,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"अप्रासंगिक/मृत पद","sno":"1","hindi":"संगणक (तकनीकी सहायक) (मृत संवर्ग घोषित)","english":"Computer (Technical Assistant) (Declared Dead Cadre)","sanctioned":57,"working":11,"vacant":46,"remarks":"मृत संवर्ग","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"अप्रासंगिक/मृत पद","sno":"2","hindi":"मानचित्रक (मृत संवर्ग घोषित)","english":"Draftman (Declared Dead Cadre)","sanctioned":110,"working":3,"vacant":107,"remarks":"मृत संवर्ग","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"अप्रासंगिक/मृत पद","sno":"3","hindi":"टी.जी.-प्रथम","english":"Technical Grade-I","sanctioned":4,"working":0,"vacant":4,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"अप्रासंगिक/मृत पद","sno":"4","hindi":"केबिल ज्वाइन्टर","english":"Cable Jointer","sanctioned":12,"working":0,"vacant":12,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"अप्रासंगिक/मृत पद","sno":"5","hindi":"अनुरेखक","english":"Tracer","sanctioned":54,"working":0,"vacant":54,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"अप्रासंगिक/मृत पद","sno":"6","hindi":"मैकेनिकल ग्रेड-2","english":"Mechanical Grade-II","sanctioned":3,"working":0,"vacant":3,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"अप्रासंगिक/मृत पद","sno":"7","hindi":"मिक्सचर ऑपरेटर","english":"Mixture Operator","sanctioned":5,"working":0,"vacant":5,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"अप्रासंगिक/मृत पद","sno":"8","hindi":"फिटर","english":"Fitter","sanctioned":52,"working":0,"vacant":52,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"अप्रासंगिक/मृत पद","sno":"9","hindi":"भण्डार अधीक्षक","english":"Store Superintendent","sanctioned":7,"working":0,"vacant":7,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"अप्रासंगिक/मृत पद","sno":"10","hindi":"पम्प अटेण्डेंट","english":"Pump Attend","sanctioned":7,"working":0,"vacant":7,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"अप्रासंगिक/मृत पद","sno":"11","hindi":"सेन्ट्रीफ्यूगल मिस्त्री/जूनियर इलेक्ट्रीशियन","english":"Centrifugal Mechanic/Junior Electrician","sanctioned":49,"working":0,"vacant":49,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"अप्रासंगिक/मृत पद","sno":"12","hindi":"क्रेन ऑपरेटर","english":"Crane Operator","sanctioned":11,"working":0,"vacant":11,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"अप्रासंगिक/मृत पद","sno":"13","hindi":"वेल्डर","english":"Welder","sanctioned":16,"working":0,"vacant":16,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"अप्रासंगिक/मृत पद","sno":"14","hindi":"तकनीकी ग्रेड-द्वितीय (बाइन्डर)","english":"Technical Grade-II (Binder)","sanctioned":1,"working":0,"vacant":1,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"अप्रासंगिक/मृत पद","sno":"15","hindi":"तकनीकी ग्रेड-द्वितीय (काष्ठ)","english":"Technical Grade-II (Wood)","sanctioned":1,"working":0,"vacant":1,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"अप्रासंगिक/मृत पद","sno":"16","hindi":"तकनीकी ग्रेड-द्वितीय (टेलीफोन/रेडियो)","english":"Technical Grade-II (Telephone/Radio)","sanctioned":1,"working":0,"vacant":1,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"अप्रासंगिक/मृत पद","sno":"17","hindi":"ट्यूबवैल ऑपरेटर","english":"Tube Well Operator","sanctioned":2,"working":0,"vacant":2,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"अप्रासंगिक/मृत पद","sno":"18","hindi":"ट्रेलर ऑपरेटर","english":"Trailer Operator","sanctioned":13,"working":0,"vacant":13,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"अप्रासंगिक/मृत पद","sno":"19","hindi":"टी.पी.ओ./इलेक्ट्रीशियन","english":"TPO/Electrician","sanctioned":47,"working":0,"vacant":47,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"अप्रासंगिक/मृत पद","sno":"20","hindi":"ऑपरेटर ग्रेड-II","english":"Operator Grade-II","sanctioned":95,"working":0,"vacant":95,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"अप्रासंगिक/मृत पद","sno":"21","hindi":"ऑपरेटर ग्रेड-I/II/III","english":"Operator Grade-I/II/III","sanctioned":4,"working":0,"vacant":4,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"C","subgroup":"अप्रासंगिक/मृत पद","sno":"22","hindi":"अटेन्डेन्ट ग्रेड-II","english":"Attendant Grade-II","sanctioned":5,"working":0,"vacant":5,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"लेखा संवर्ग","sno":"1","hindi":"चपरासी","english":"Peon","sanctioned":26,"working":4,"vacant":22,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"मुख्यालय संवर्ग","sno":"1","hindi":"स्वीपर","english":"Sweeper","sanctioned":2,"working":0,"vacant":2,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"मुख्यालय संवर्ग","sno":"2","hindi":"चतुर्थ श्रेणी निम्न वेतनमान","english":"Class IV Lower Pay Scale","sanctioned":27,"working":0,"vacant":27,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"मुख्यालय संवर्ग","sno":"3","hindi":"चतुर्थ श्रेणी उच्च वेतनमान","english":"Class IV Higher Pay Scale","sanctioned":1,"working":0,"vacant":1,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"मुख्य अभियन्ता (जल विद्युत)","sno":"1","hindi":"श्रमिक/क्लीनर/मजदूर","english":"Shramik / Beldar / Cleaner / Laborer","sanctioned":1468,"working":274,"vacant":1194,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"मुख्य अभियन्ता (जल विद्युत)","sno":"2","hindi":"कुशल श्रमिक/कुशल कुली","english":"Skilled Shramik/Petrol Man/Porter","sanctioned":1626,"working":96,"vacant":1530,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"मुख्य अभियन्ता (जल विद्युत)","sno":"3","hindi":"मुख्य/सुरक्षा प्रहरी","english":"Chief / Security Police","sanctioned":385,"working":3,"vacant":382,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"मुख्य अभियन्ता (जल विद्युत)","sno":"4","hindi":"चपरासी/रनर","english":"Peon/Runner","sanctioned":658,"working":132,"vacant":526,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"अप्रासंगिक/मृत पद","sno":"1","hindi":"फैरो ब्वाय/टाइपर/कुली/बेलदार","english":"Farrow Boy/Typer","sanctioned":36,"working":5,"vacant":31,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"अप्रासंगिक/मृत पद","sno":"2","hindi":"दफ्तरी","english":"Daftari","sanctioned":11,"working":3,"vacant":8,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"अप्रासंगिक/मृत पद","sno":"3","hindi":"दफादार","english":"Dafadar","sanctioned":195,"working":22,"vacant":173,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"अप्रासंगिक/मृत पद","sno":"4","hindi":"माली/गार्डनर","english":"Gardner","sanctioned":42,"working":27,"vacant":15,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"अप्रासंगिक/मृत पद","sno":"5","hindi":"कार्यालय चौकीदार","english":"Office Watchman","sanctioned":73,"working":13,"vacant":60,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"अप्रासंगिक/मृत पद","sno":"6","hindi":"स्टोर चौकीदार","english":"Store Watchman","sanctioned":291,"working":13,"vacant":278,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"अप्रासंगिक/मृत पद","sno":"7","hindi":"रूम सर्विस मैन","english":"Room Service Man","sanctioned":2,"working":2,"vacant":0,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"अप्रासंगिक/मृत पद","sno":"8","hindi":"कुक","english":"Cook/Cook Worker","sanctioned":8,"working":5,"vacant":3,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"अप्रासंगिक/मृत पद","sno":"9","hindi":"कुर्सी बुनकर","english":"Chair Weavers","sanctioned":1,"working":0,"vacant":1,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"अप्रासंगिक/मृत पद","sno":"10","hindi":"मशीन ऑपरेटर","english":"Machine Operator","sanctioned":6,"working":0,"vacant":6,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"अप्रासंगिक/मृत पद","sno":"11","hindi":"मोटर मजदूर","english":"Motor Worker","sanctioned":4,"working":1,"vacant":3,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"अप्रासंगिक/मृत पद","sno":"12","hindi":"हैमरमैन/लोहार","english":"Hammerman/Blacksmith","sanctioned":4,"working":0,"vacant":4,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"अप्रासंगिक/मृत पद","sno":"13","hindi":"प्लम्बर/मेट","english":"Plumber/Mate","sanctioned":1,"working":1,"vacant":0,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"अप्रासंगिक/मृत पद","sno":"14","hindi":"स्टोर कुली","english":"Store Porter/Laborer","sanctioned":12,"working":0,"vacant":12,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"अप्रासंगिक/मृत पद","sno":"15","hindi":"स्टोर मिस्त्री","english":"Store Repairer","sanctioned":5,"working":0,"vacant":5,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"अप्रासंगिक/मृत पद","sno":"16","hindi":"स्वच्छकार","english":"Cleaner","sanctioned":46,"working":7,"vacant":39,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"अप्रासंगिक/मृत पद","sno":"17","hindi":"स्टोर जमादार","english":"Store Jamadar","sanctioned":18,"working":0,"vacant":18,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"अप्रासंगिक/मृत पद","sno":"18","hindi":"वायरमैन","english":"Wireman","sanctioned":4,"working":0,"vacant":4,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"अप्रासंगिक/मृत पद","sno":"19","hindi":"वाटर वूमेन/मैन","english":"Water Woman/Man","sanctioned":4,"working":0,"vacant":4,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"अप्रासंगिक/मृत पद","sno":"20","hindi":"ऑटोमोबाइल मैकेनिक","english":"Automobile Mechanic","sanctioned":1,"working":1,"vacant":0,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"अप्रासंगिक/मृत पद","sno":"21","hindi":"टर्नर/खलासी","english":"Turner/Khalasi","sanctioned":5,"working":2,"vacant":3,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"अप्रासंगिक/मृत पद","sno":"22","hindi":"लाइन मैन","english":"Line Man","sanctioned":10,"working":0,"vacant":10,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"अप्रासंगिक/मृत पद","sno":"23","hindi":"लारी क्लीनर","english":"Lorry Cleaner","sanctioned":4,"working":2,"vacant":2,"remarks":"","department":"UPPTCL","office":"HQ"},{"group":"D","subgroup":"अप्रासंगिक/मृत पद","sno":"24","hindi":"मेसन/सी.एफ.एम.","english":"Mason/CFM","sanctioned":15,"working":0,"vacant":15,"remarks":"","department":"UPPTCL","office":"HQ"}];
+
+// ==================== localStorage Persistence (स्थायी रूप से सेव) ====================
+const STORAGE_KEY = 'uppcl_dashboard_working_data_v2';
+const DATE_STORAGE_KEY = 'uppcl_dashboard_report_date_v1';
+
+function loadSavedWorkingData() {
+  try {
+    // 1. Load manual overrides first
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const saved = JSON.parse(raw); // { "<index>": { w: workingValue, h: hindiText }, ... }
+      allData.forEach((d, idx) => {
+        const entry = saved[idx];
+        if (!entry) return;
+        if (typeof entry.w === 'number' && !isNaN(entry.w)) {
+          d.working = entry.w;
+        }
+        if (entry.dist) {
+          d.sanctioned = (entry.dist.upptcl_hq?.s || 0) + (entry.dist.upptcl_zone?.s || 0) + (entry.dist.sldc?.s || 0);
+        }
+        d.vacant = (d.sanctioned || 0) - (d.working || 0);
+        if (typeof entry.h === 'string' && entry.h.trim()) {
+          d.hindi = entry.h;
+        }
+        if (typeof entry.e === 'string' && entry.e.trim()) {
+          d.english = entry.e;
+        }
+      });
+    }
+
+    // 2. Load global employee data and dynamically calculate working counts
+    const rawEmployees = localStorage.getItem('uppcl_employees_data');
+    if (rawEmployees) {
+      const employees = JSON.parse(rawEmployees);
+      if (Array.isArray(employees)) {
+        allData.forEach(d => {
+          const normEnglish = d.english.replace(/\s+/g, ' ').trim();
+          // Count how many individual employees have this designation (exclude Additional charge)
+          const empCount = employees.filter(e => {
+            if (e.status === 'Retired' || e.status === 'Vacant') return false;
+            const nameUpper = (e.name || '').toUpperCase();
+            if (nameUpper.includes('VACANT') || nameUpper.includes('RETIRED')) return false;
+            const eDesig = (e.substantiveDesig || e.desig || '').replace(/\s+/g, ' ').trim();
+            return eDesig === normEnglish && e.chargeType !== 'Additional';
+          }).length;
+          
+          if (d.group === 'A' || d.group === 'B') {
+            d.working = empCount;
+          } else {
+            d.working = Math.max(d.working || 0, empCount);
+          }
+          d.vacant = (d.sanctioned || 0) - (d.working || 0);
+        });
+      }
+    }
+  } catch (err) {
+    console.warn('सेव किया गया डेटा लोड नहीं हो सका:', err);
+  }
+}
+
+function saveWorkingDataToStorage() {
+  try {
+    const saved = {};
+    allData.forEach((d, idx) => { saved[idx] = { w: d.working, h: d.hindi, e: d.english }; });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+  } catch (err) {
+    console.warn('डेटा सेव नहीं हो सका:', err);
+  }
+}
+
+function resetSavedWorkingData() {
+  localStorage.removeItem(STORAGE_KEY);
+}
+
+function confirmResetData() {
+  if (confirm('क्या आप वाकई सभी "कार्यरत" व "पदनाम" बदलाव हटाकर मूल डेटा पर वापस जाना चाहते हैं? यह वापस नहीं हो सकेगा।')) {
+    resetSavedWorkingData();
+    localStorage.removeItem(DATE_STORAGE_KEY);
+    showToast('मूल डेटा पर रीसेट किया जा रहा है...');
+    setTimeout(() => location.reload(), 600);
+  }
+}
+
+function loadSavedDate() {
+  try {
+    const saved = localStorage.getItem(DATE_STORAGE_KEY);
+    const el = document.getElementById('reportDate');
+    if (!el) return;
+    if (saved && saved.trim()) {
+      el.textContent = saved;
+    } else {
+      const today = new Date();
+      const dd = String(today.getDate()).padStart(2, '0');
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const yyyy = today.getFullYear();
+      el.textContent = `${dd}/${mm}/${yyyy}`;
+    }
+  } catch (err) {
+    console.warn('दिनांक लोड नहीं हो सका:', err);
+  }
+}
+
+function saveDateToStorage(value) {
+  try {
+    localStorage.setItem(DATE_STORAGE_KEY, value);
+  } catch (err) {
+    console.warn('दिनांक सेव नहीं हो सका:', err);
+  }
+}
+
+// सबसे पहले सेव किया हुआ डेटा लोड करें, इससे पहले कि totals/cards बनें
+loadSavedWorkingData();
+loadSavedDate();
+
+// ==================== Auto-Calculate Totals ====================
+let gTotals = { A: {s:0,w:0,v:0}, B: {s:0,w:0,v:0}, C: {s:0,w:0,v:0}, D: {s:0,w:0,v:0} };
+let grandTotal = {s:0, w:0, v:0};
+const groupColors = { A: 'amber', B: 'blue', C: 'teal', D: 'red' };
+
+function recalcTotals() {
+  gTotals = { A: {s:0,w:0,v:0}, B: {s:0,w:0,v:0}, C: {s:0,w:0,v:0}, D: {s:0,w:0,v:0} };
+  grandTotal = {s:0, w:0, v:0};
+  allData.forEach(d => {
+    gTotals[d.group].s += d.sanctioned;
+    gTotals[d.group].w += d.working;
+    gTotals[d.group].v += d.vacant;
+    grandTotal.s += d.sanctioned;
+    grandTotal.w += d.working;
+    grandTotal.v += d.vacant;
+  });
+}
+
+function updateMasterCards(animate) {
+  const masterPct = grandTotal.s > 0 ? (Math.max(0, grandTotal.v) / grandTotal.s * 100).toFixed(1) : 0;
+  const elS = document.getElementById('masterSanctioned');
+  const elW = document.getElementById('masterWorking');
+  const elV = document.getElementById('masterVacant');
+  const elP = document.getElementById('masterPercent');
+  elS.dataset.target = grandTotal.s;
+  elW.dataset.target = grandTotal.w;
+  elV.dataset.target = grandTotal.v;
+  elP.dataset.target = masterPct;
+  if (!animate) {
+    elS.textContent = grandTotal.s.toLocaleString('en-IN');
+    elW.textContent = grandTotal.w.toLocaleString('en-IN');
+    elV.textContent = grandTotal.v.toLocaleString('en-IN');
+    elP.textContent = masterPct + '%';
+  } else {
+    animateCounters();
+  }
+}
+
+function renderGroupCards(animate) {
+  let gHtml = '';
+  ['A', 'B', 'C', 'D'].forEach((g, idx) => {
+    const c = groupColors[g];
+    const delay = 0.5 + (idx * 0.1);
+    const pct = gTotals[g].s > 0 ? (Math.max(0, gTotals[g].v) / gTotals[g].s * 100).toFixed(1) : 0;
+
+    gHtml += `
+    <div class="card p-5 animate-in" style="animation-delay:${delay}s">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="w-3 h-3 rounded-full bg-${c}-400 shadow-[0_0_8px_rgba(var(--${c}-400),0.8)]"></span>
+          <span class="text-sm font-semibold text-${c}-400 uppercase tracking-wider">समूह-${g} (Group ${g})</span>
+        </div>
+        <div class="text-3xl font-black text-[var(--fg)] tracking-tight font-['Poppins']">${gTotals[g].s.toLocaleString('en-IN')}</div>
+        <div class="flex justify-between items-center mt-3 text-sm text-[var(--fg-muted)]">
+          <div><span class="text-green-400 font-bold">${gTotals[g].w.toLocaleString('en-IN')}</span> कार्यरत</div>
+          <div><span class="text-red-400 font-bold">${gTotals[g].v.toLocaleString('en-IN')}</span> रिक्त</div>
+        </div>
+        <div class="vacancy-bar mt-3"><div class="vacancy-bar-fill bg-gradient-to-r from-${c}-600 to-${c}-400" style="width:${animate ? '0' : pct}%" data-width="${pct}%"></div></div>
+    </div>`;
+  });
+  document.getElementById('groupStatsContainer').innerHTML = gHtml;
+  if (animate) setTimeout(animateVacancyBars, 100);
+}
+
+recalcTotals();
+updateMasterCards(false);
+renderGroupCards(false);
+
+// ==================== Logic & Functions ====================
+let currentFilter = 'all';
+let currentSearch = '';
+let printSeparateMode = false;
+let savedStateBeforePrint = null;
+
+
+function getVacancyPercent(sanctioned, vacant) {
+  if (sanctioned <= 0) return 0;
+  return Math.max(0, (vacant / sanctioned) * 100);
+}
+
+function getBarColor(pct) {
+  if (pct >= 80) return 'background: linear-gradient(90deg, #ef4444, #f87171)';
+  if (pct >= 50) return 'background: linear-gradient(90deg, #f59e0b, #fbbf24)';
+  if (pct >= 20) return 'background: linear-gradient(90deg, #14b8a6, #5eead4)';
+  return 'background: linear-gradient(90deg, #22c55e, #86efac)';
+}
+
+function getStatusBadge(vacant, sanctioned) {
+  if (vacant < 0) return '<span class="badge badge-over"><i class="fas fa-arrow-up text-[10px]"></i> अतिरिक्त</span>';
+  const pct = getVacancyPercent(sanctioned, vacant);
+  if (pct >= 80) return '<span class="badge badge-vacant"><i class="fas fa-exclamation text-[10px]"></i> क्रिटिकल</span>';
+  if (pct >= 50) return '<span class="badge badge-vacant"><i class="fas fa-exclamation text-[10px]"></i> उच्च</span>';
+  if (vacant === 0) return '<span class="badge badge-working"><i class="fas fa-check text-[10px]"></i> पूर्ण</span>';
+  return '<span class="badge badge-vacant"><i class="fas fa-minus text-[10px]"></i> आंशिक</span>';
+}
+
+function getGroupHindi(g) { return { A: 'क', B: 'ख', C: 'ग', D: 'घ' }[g] || ''; }
+
+function renderTable() {
+  const tbody = document.getElementById('tableBody');
+  let filtered = [...allData];
+
+  // Filters
+  if (currentFilter === 'critical') {
+    filtered = filtered.filter(d => d.vacant >= 0 && getVacancyPercent(d.sanctioned, d.vacant) >= 80 && d.sanctioned > 0);
+  } else if (currentFilter !== 'all') {
+    filtered = filtered.filter(d => d.group === currentFilter);
+  }
+
+  if (currentSearch) {
+    const q = currentSearch.toLowerCase();
+    filtered = filtered.filter(d => d.hindi.toLowerCase().includes(q) || d.english.toLowerCase().includes(q) || d.subgroup.toLowerCase().includes(q));
+  }
+
+  let html = '';
+  let lastGroup = '', lastSubgroup = '';
+  let gSan = 0, gWor = 0, gVac = 0;
+  let isFirstGroup = true;
+
+  filtered.forEach((d, i) => {
+    // Group Header
+    if (d.group !== lastGroup) {
+      if (lastGroup !== '') {
+        html += `<tr class="total-row">
+          <td colspan="2" class="pl-4">योग — समूह-${getGroupHindi(lastGroup)}</td>
+          <td class="text-center font-['Poppins']">${gSan.toLocaleString('en-IN')}</td>
+          <td class="text-center font-['Poppins']">${gWor.toLocaleString('en-IN')}</td>
+          <td class="text-center font-['Poppins']">${gVac.toLocaleString('en-IN')}</td>
+          <td></td><td></td>
+        </tr>`;
+      }
+      lastGroup = d.group;
+      lastSubgroup = '';
+      gSan = 0; gWor = 0; gVac = 0;
+
+      const pageBreakClass = (printSeparateMode && !isFirstGroup) ? ' print-page-break' : '';
+      isFirstGroup = false;
+
+      html += `<tr class="group-header-row${pageBreakClass}" onclick="toggleGroupRows(this)">
+        <td colspan="7" class="pl-4">
+          <i class="fas fa-chevron-right chevron-icon mr-2 text-sm transition-transform duration-300 rotated"></i>
+          समूह-${getGroupHindi(d.group)} (Group ${d.group})
+        </td>
+      </tr>`;
+    }
+
+    // Subgroup Header
+    if (d.subgroup !== lastSubgroup) {
+      lastSubgroup = d.subgroup;
+      html += `<tr class="sub-group-row">
+        <td colspan="7" class="pl-8"><i class="fas fa-folder-open mr-2 text-xs opacity-70"></i>${d.subgroup}</td>
+      </tr>`;
+    }
+
+    gSan += d.sanctioned; gWor += d.working; gVac += d.vacant;
+    const pct = getVacancyPercent(d.sanctioned, d.vacant);
+    const vDisp = d.vacant < 0 ? `<span class="text-purple-400 font-bold">${d.vacant}</span>` : d.vacant;
+    const realIndex = allData.indexOf(d);
+
+    html += `<tr>
+      <td class="text-center font-['Poppins'] text-sm text-[var(--fg-muted)]">${d.sno}</td>
+      <td class="font-medium text-left">
+        <span class="hindi-edit inline-editable" contenteditable="true" data-row-index="${realIndex}" title="क्लिक करके पदनाम बदलें" spellcheck="false">${d.hindi}</span>
+      </td>
+      <td class="text-center font-bold font-['Poppins'] text-[var(--fg)]">${d.sanctioned.toLocaleString('en-IN')}</td>
+      <td class="text-center font-bold font-['Poppins'] text-green-400">
+        <span class="working-edit" contenteditable="true" data-row-index="${realIndex}" title="क्लिक करके संख्या बदलें" spellcheck="false">${d.working.toLocaleString('en-IN')}</span>
+      </td>
+      <td class="text-center font-bold font-['Poppins'] vacant-cell ${d.vacant > 0 ? 'text-red-400' : ''}" data-row-index="${realIndex}">${vDisp}</td>
+      <td class="pct-cell" data-row-index="${realIndex}">
+        <div class="flex items-center justify-center gap-1">
+          <div class="vacancy-bar" style="width:32px;flex:none"><div class="vacancy-bar-fill" style="${getBarColor(pct)};width:${pct}%"></div></div>
+          <span class="font-['Poppins'] text-xs text-center w-9">${pct.toFixed(0)}%</span>
+        </div>
+      </td>
+      <td class="no-print text-center status-cell" data-row-index="${realIndex}">${getStatusBadge(d.vacant, d.sanctioned)}</td>
+    </tr>`;
+  });
+
+  if (lastGroup !== '') {
+    html += `<tr class="total-row">
+      <td colspan="2" class="pl-4">योग — समूह-${getGroupHindi(lastGroup)}</td>
+      <td class="text-center font-['Poppins']">${gSan.toLocaleString('en-IN')}</td>
+      <td class="text-center font-['Poppins']">${gWor.toLocaleString('en-IN')}</td>
+      <td class="text-center font-['Poppins']">${gVac.toLocaleString('en-IN')}</td>
+      <td></td><td></td>
+    </tr>`;
+  }
+
+  if (currentFilter === 'all' && !currentSearch) {
+    html += `<tr class="grand-total-row">
+      <td colspan="2" class="pl-4"><i class="fas fa-bolt mr-2"></i>कुल योग (Grand Total)</td>
+      <td class="text-center font-['Poppins']">${grandTotal.s.toLocaleString('en-IN')}</td>
+      <td class="text-center font-['Poppins']">${grandTotal.w.toLocaleString('en-IN')}</td>
+      <td class="text-center font-['Poppins']">${grandTotal.v.toLocaleString('en-IN')}</td>
+      <td></td><td></td>
+    </tr>`;
+  }
+
+  tbody.innerHTML = html || '<tr><td colspan="7" class="text-center py-8">कोई डेटा नहीं मिला</td></tr>';
+  
+  const totVac = filtered.reduce((s, d) => s + Math.max(0, d.vacant), 0);
+  document.getElementById('rowCount').textContent = `कुल: ${filtered.length} पद दिखाए जा रहे हैं`;
+  document.getElementById('vacantCount').innerHTML = `रिक्त: <span class="text-red-400 font-bold">${totVac.toLocaleString('en-IN')}</span>`;
+}
+
+// ==================== Editable "कार्यरत" (Working) Count ====================
+function parseIndianNumber(str) {
+  const cleaned = String(str).replace(/[^\d-]/g, '');
+  const n = parseInt(cleaned, 10);
+  return isNaN(n) ? null : n;
+}
+
+function applyWorkingEdit(span) {
+  const idx = parseInt(span.dataset.rowIndex, 10);
+  const d = allData[idx];
+  if (!d) return;
+
+  const newVal = parseIndianNumber(span.textContent);
+
+  if (newVal === null || newVal < 0) {
+    showToast('कृपया एक वैध संख्या दर्ज करें', true);
+    span.textContent = d.working.toLocaleString('en-IN');
+    return;
+  }
+
+  d.working = newVal;
+  d.vacant = d.sanctioned - newVal;
+
+  // Refresh the displayed value formatted nicely
+  span.textContent = d.working.toLocaleString('en-IN');
+
+  // Update vacant cell, percent bar, status badge in this row without a full re-render
+  const row = span.closest('tr');
+  const pct = getVacancyPercent(d.sanctioned, d.vacant);
+  const vDisp = d.vacant < 0 ? `<span class="text-purple-400 font-bold">${d.vacant}</span>` : d.vacant;
+
+  const vacantCell = row.querySelector('.vacant-cell');
+  if (vacantCell) {
+    vacantCell.innerHTML = vDisp;
+    vacantCell.classList.toggle('text-red-400', d.vacant > 0);
+  }
+  const pctCell = row.querySelector('.pct-cell');
+  if (pctCell) {
+    pctCell.innerHTML = `<div class="flex items-center justify-center gap-1">
+        <div class="vacancy-bar" style="width:32px;flex:none"><div class="vacancy-bar-fill" style="${getBarColor(pct)};width:${pct}%"></div></div>
+        <span class="font-['Poppins'] text-xs text-center w-9">${pct.toFixed(0)}%</span>
+      </div>`;
+  }
+  const statusCell = row.querySelector('.status-cell');
+  if (statusCell) {
+    statusCell.innerHTML = getStatusBadge(d.vacant, d.sanctioned);
+  }
+
+  // Recalculate totals, group totals row, master cards, group cards and charts
+  recalcTotals();
+  renderTable();
+  updateMasterCards(false);
+  renderGroupCards(false);
+  updateCharts();
+
+  // बदलाव को स्थायी रूप से सेव करें (localStorage)
+  saveWorkingDataToStorage();
+
+  showToast(`"${d.hindi}" के लिए कार्यरत संख्या ${d.working.toLocaleString('en-IN')} अपडेट हो गई (सेव हो गया)`);
+}
+
+// ==================== Editable "पदनाम" (Designation Name) ====================
+function applyHindiEdit(span) {
+  const idx = parseInt(span.dataset.rowIndex, 10);
+  const d = allData[idx];
+  if (!d) return;
+
+  const newVal = span.textContent.trim();
+
+  if (!newVal) {
+    showToast('पदनाम खाली नहीं हो सकता', true);
+    span.textContent = d.hindi;
+    return;
+  }
+
+  d.hindi = newVal;
+  span.textContent = d.hindi;
+
+  saveWorkingDataToStorage();
+  showToast(`पदनाम अपडेट होकर सेव हो गया`);
+}
+
+function applyEnglishEdit(span) {
+  const idx = parseInt(span.dataset.rowIndex, 10);
+  const d = allData[idx];
+  if (!d) return;
+
+  const newVal = span.textContent.trim();
+
+  if (!newVal) {
+    showToast('Designation खाली नहीं हो सकता', true);
+    span.textContent = d.english;
+    return;
+  }
+
+  d.english = newVal;
+  span.textContent = d.english;
+
+  saveWorkingDataToStorage();
+  showToast(`Designation अपडेट होकर सेव हो गया`);
+}
+
+// ==================== Editable दिनांक (Report Date) ====================
+function applyDateEdit(span) {
+  const newVal = span.textContent.trim();
+  if (!newVal) {
+    loadSavedDate();
+    return;
+  }
+  span.textContent = newVal;
+  saveDateToStorage(newVal);
+  showToast('दिनांक अपडेट होकर सेव हो गई');
+}
+
+document.addEventListener('focus', function(e) {
+  if (e.target.classList && (e.target.classList.contains('working-edit') || e.target.classList.contains('hindi-edit') || e.target.classList.contains('english-edit') || e.target.id === 'reportDate')) {
+    e.target.dataset.prevValue = e.target.textContent;
+  }
+}, true);
+
+document.addEventListener('blur', function(e) {
+  if (!e.target.classList) return;
+  const isChanged = e.target.textContent.trim() !== String(e.target.dataset.prevValue || '').trim();
+  if (e.target.classList.contains('working-edit') && isChanged) {
+    applyWorkingEdit(e.target);
+  } else if (e.target.classList.contains('hindi-edit') && isChanged) {
+    applyHindiEdit(e.target);
+  } else if (e.target.classList.contains('english-edit') && isChanged) {
+    applyEnglishEdit(e.target);
+  } else if (e.target.id === 'reportDate' && isChanged) {
+    applyDateEdit(e.target);
+  }
+}, true);
+
+document.addEventListener('keydown', function(e) {
+  if (!e.target.classList) return;
+  const isEditable = e.target.classList.contains('working-edit') || e.target.classList.contains('hindi-edit') || e.target.classList.contains('english-edit') || e.target.id === 'reportDate';
+  if (isEditable) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      e.target.blur();
+    }
+    if (e.key === 'Escape') {
+      e.target.textContent = e.target.dataset.prevValue || e.target.textContent;
+      e.target.blur();
+    }
+  }
+});
+
+function filterGroup(group, btn) {
+  currentFilter = group;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+  showToast(`${group === 'all' ? 'सभी समूह' : group === 'critical' ? 'क्रिटिकल पद' : 'समूह-' + getGroupHindi(group)} दिखाए जा रहे हैं`);
+}
+
+document.getElementById('searchInput').addEventListener('input', function(e) {
+  currentSearch = e.target.value.trim();
+  renderTable();
+});
+
+function toggleGroupRows(header) {
+  const icon = header.querySelector('.chevron-icon');
+  const isHidden = !icon.classList.contains('rotated');
+  icon.classList.toggle('rotated');
+  
+  let next = header.nextElementSibling;
+  while (next && !next.classList.contains('group-header-row') && !next.classList.contains('grand-total-row')) {
+    next.style.display = isHidden ? '' : 'none';
+    next = next.nextElementSibling;
+  }
+}
+
+// ==================== Charts ====================
+let groupBarChart = null;
+
+function initCharts() {
+  Chart.defaults.color = '#94a3b8';
+  Chart.defaults.font.family = "'Poppins', 'Noto Sans Devanagari', sans-serif";
+
+  groupBarChart = new Chart(document.getElementById('groupBar'), {
+    type: 'bar',
+    data: {
+      labels: ['समूह-क', 'समूह-ख', 'समूह-ग', 'समूह-घ'],
+      datasets: [
+        { label: 'स्वीकृत', data: [gTotals.A.s, gTotals.B.s, gTotals.C.s, gTotals.D.s], backgroundColor: 'rgba(245,158,11,0.8)', borderRadius: 4 },
+        { label: 'कार्यरत', data: [gTotals.A.w, gTotals.B.w, gTotals.C.w, gTotals.D.w], backgroundColor: 'rgba(34,197,94,0.8)', borderRadius: 4 },
+        { label: 'रिक्त', data: [gTotals.A.v, gTotals.B.v, gTotals.C.v, gTotals.D.v], backgroundColor: 'rgba(239,68,68,0.8)', borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top', labels: { usePointStyle: true } } },
+      scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(30,41,59,0.5)' } } }
+    }
+  });
+
+  updateChartTotals();
+}
+
+function updateChartTotals() {
+  const elS = document.getElementById('chartTotalSanctioned');
+  const elW = document.getElementById('chartTotalWorking');
+  const elV = document.getElementById('chartTotalVacant');
+  if (elS) elS.textContent = grandTotal.s.toLocaleString('en-IN');
+  if (elW) elW.textContent = grandTotal.w.toLocaleString('en-IN');
+  if (elV) elV.textContent = grandTotal.v.toLocaleString('en-IN');
+}
+
+function updateCharts() {
+  if (groupBarChart) {
+    groupBarChart.data.datasets[0].data = [gTotals.A.s, gTotals.B.s, gTotals.C.s, gTotals.D.s];
+    groupBarChart.data.datasets[1].data = [gTotals.A.w, gTotals.B.w, gTotals.C.w, gTotals.D.w];
+    groupBarChart.data.datasets[2].data = [gTotals.A.v, gTotals.B.v, gTotals.C.v, gTotals.D.v];
+    groupBarChart.update();
+  }
+  updateChartTotals();
+}
+
+// ==================== Print Menu & Selective Printing ====================
+function togglePrintMenu(e) {
+  e.stopPropagation();
+  document.getElementById('printMenu').classList.toggle('hidden');
+}
+
+function closePrintMenu() {
+  document.getElementById('printMenu').classList.add('hidden');
+}
+
+document.addEventListener('click', function(e) {
+  const wrapper = document.getElementById('printMenuWrapper');
+  if (wrapper && !wrapper.contains(e.target)) closePrintMenu();
+});
+
+function printSelection(mode) {
+  closePrintMenu();
+
+  // वर्तमान स्क्रीन स्थिति सुरक्षित रखें, ताकि प्रिंट के बाद वापस लौटाई जा सके
+  const activeBtn = document.querySelector('.tab-btn.active');
+  savedStateBeforePrint = {
+    filter: currentFilter,
+    search: currentSearch,
+    activeGroup: activeBtn ? activeBtn.dataset.group : 'all'
+  };
+
+  currentSearch = '';
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) searchInput.value = '';
+
+  if (mode === 'separate') {
+    printSeparateMode = true;
+    currentFilter = 'all';
+  } else {
+    printSeparateMode = false;
+    currentFilter = mode;
+  }
+
+  renderTable();
+
+  setTimeout(() => { window.print(); }, 150);
+}
+
+window.addEventListener('afterprint', function() {
+  if (savedStateBeforePrint) {
+    printSeparateMode = false;
+    currentFilter = savedStateBeforePrint.filter;
+    currentSearch = savedStateBeforePrint.search;
+    renderTable();
+
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    const btnToRestore = document.querySelector(`.tab-btn[data-group="${savedStateBeforePrint.activeGroup}"]`);
+    if (btnToRestore) btnToRestore.classList.add('active');
+
+    savedStateBeforePrint = null;
+  }
+});
+
+function exportCSV() {
+  let csv = 'क्र.सं.,पदनाम (हिन्दी),पदनाम (अंग्रेजी),समूह,उप-विभाग,स्वीकृत,कार्यरत,रिक्त,रिक्ति %,टिप्पणी\n';
+  allData.forEach(d => {
+    const pct = d.sanctioned > 0 ? ((Math.max(0, d.vacant) / d.sanctioned) * 100).toFixed(1) : '0';
+    csv += `${d.sno},"${d.hindi}","${d.english}",समूह-${getGroupHindi(d.group)},"${d.subgroup}",${d.sanctioned},${d.working},${d.vacant},${pct}%,"${d.remarks}"\n`;
+  });
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a'); link.href = URL.createObjectURL(blob);
+  link.download = 'UPPCL_Pad_Vivaran_Complete.csv'; link.click(); URL.revokeObjectURL(link.href);
+  showToast('CSV फ़ाइल डाउनलोड हो रही है...');
+}
+
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  const icon = isError ? '<i class="fas fa-circle-exclamation text-red-400 mr-2"></i>' : '<i class="fas fa-check-circle text-green-400 mr-2"></i>';
+  t.innerHTML = icon + msg;
+  t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function animateCounters() {
+  document.querySelectorAll('.stat-number[data-target]').forEach(el => {
+    const target = parseFloat(el.dataset.target);
+    const decimal = parseInt(el.dataset.decimal) || 0;
+    const start = performance.now();
+    function update(now) {
+      const prog = Math.min((now - start) / 2000, 1);
+      const eased = prog === 1 ? 1 : 1 - Math.pow(2, -10 * prog);
+      const current = target * eased;
+      el.textContent = decimal > 0 ? current.toFixed(decimal) + '%' : Math.floor(current).toLocaleString('en-IN');
+      if (prog < 1) requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+  });
+}
+
+function animateVacancyBars() {
+  document.querySelectorAll('.vacancy-bar-fill[data-width]').forEach(el => {
+    setTimeout(() => { el.style.width = el.dataset.width; }, 300);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderTable();
+  initCharts();
+  
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.style.animationPlayState = 'running'; });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.animate-in').forEach(el => { el.style.animationPlayState = 'paused'; observer.observe(el); });
+
+  setTimeout(animateCounters, 300);
+  setTimeout(animateVacancyBars, 600);
+  
+  // Initialize chevron state
+  document.querySelectorAll('.chevron-icon').forEach(i => i.classList.add('rotated'));
+});
+</script>
+
+<script>
+  let currentLang = 'hi';
+  const dictionary = {
+    'उत्तर प्रदेश पावर ट्रांसमिशन कारपोरेशन लि0': 'U.P. Power Transmission Corporation Ltd.',
+    'स्वीकृत/कार्यरत/रिक्त पदों का विवरण': 'Details of Sanctioned/Working/Vacant Posts',
+    'स्थिति दिनांक:': 'Status As On:',
+    'मूल डेटा पर रीसेट': 'Reset to Original Data',
+    'एक साथ प्रिंट करें': 'Print Together',
+    'सभी पद (एक साथ)': 'All Posts (Together)',
+    'समूह अनुसार अलग-अलग': 'Group Wise Separately',
+    'केवल समूह-क (Group A)': 'Only Group-A',
+    'केवल समूह-ख (Group B)': 'Only Group-B',
+    'केवल समूह-ग (Group C)': 'Only Group-C',
+    'केवल समूह-घ (Group D)': 'Only Group-D',
+    'सभी समूह — प्रत्येक अलग पृष्ठ पर': 'All Groups — Separate Pages',
+    'कुल पद': 'Total Posts',
+    'कुल स्वीकृत (Sanctioned)': 'Total Sanctioned',
+    'कुल स्वीकृत (Sanctioned)': 'Total Sanctioned',
+    'कार्यरत': 'Working',
+    'वर्तमान में कार्यरत कर्मचारी': 'Currently Working Employees',
+    'रिक्त': 'Vacant',
+    'भर्ती लंबित पद': 'Pending Recruitment Posts',
+    'रिक्ति %': 'Vacancy %',
+    'कुल रिक्तता दर': 'Total Vacancy Rate',
+    'स्वीकृत vs कार्यरत vs रिक्त': 'Sanctioned vs Working vs Vacant',
+    'कुल स्वीकृत:': 'Total Sanctioned:',
+    'कुल कार्यरत:': 'Total Working:',
+    'कुल रिक्त:': 'Total Vacant:',
+    'विस्तृत पद विवरण': 'Detailed Post Details',
+    'सभी पद': 'All Posts',
+    'समूह-क': 'Group-A',
+    'समूह-ख': 'Group-B',
+    'समूह-ग': 'Group-C',
+    'समूह-घ': 'Group-D',
+    'क्रिटिकल रिक्तियां': 'Critical Vacancies',
+    'क्र.सं.': 'S.No.',
+    'पदनाम': 'Designation',
+    'स्वीकृत': 'Sanctioned',
+    'स्थिति': 'Status',
+    'कुल:': 'Total:',
+    'अभियन्त्रण संवर्ग': 'Engineering Cadre',
+    'लेखा संवर्ग': 'Accounts Cadre',
+    'कार्मिक/विधि संवर्ग': 'Personnel/Law Cadre',
+    'मुख्यालय संवर्ग': 'Headquarter Cadre',
+    'कम्प्यूटर संवर्ग': 'Computer Cadre',
+    'उड़नदस्ता': 'Flying Squad',
+    'चिकित्सा संवर्ग': 'Medical Cadre',
+    'ड्रॉफ्ट्समैन': 'Draftsman',
+    'लिपिकीय संवर्ग': 'Clerical Cadre',
+    'चतुर्थ श्रेणी': 'Class-IV'
+  };
+
+  function translateNode(node, toLang) {
+    if (node.nodeType === 3) { // Text node
+      let text = node.nodeValue.trim();
+      if (!text) return;
+      
+      if (toLang === 'en') {
+        if (dictionary[text]) {
+          node.originalText = text;
+          node.nodeValue = node.nodeValue.replace(text, dictionary[text]);
+        }
+      } else {
+        if (node.originalText) {
+          node.nodeValue = node.nodeValue.replace(text, node.originalText);
+        }
+      }
+    } else {
+      if (node.nodeName === 'INPUT' && node.placeholder) {
+         if (toLang === 'en' && node.placeholder.includes('खोजें')) {
+             node.originalPlaceholder = node.placeholder;
+             node.placeholder = 'Search designation or department...';
+         } else if (toLang === 'hi' && node.originalPlaceholder) {
+             node.placeholder = node.originalPlaceholder;
+         }
+      }
+      for (let child of node.childNodes) {
+        translateNode(child, toLang);
+      }
+    }
+  }
+
+  function toggleLanguage() {
+    currentLang = currentLang === 'hi' ? 'en' : 'hi';
+    
+    // Translate the hardcoded DOM strings
+    translateNode(document.body, currentLang);
+    
+    const btn = document.getElementById('langToggleBtn');
+    if (btn) btn.innerHTML = currentLang === 'hi' ? '<i class="fas fa-language mr-2"></i> English' : '<i class="fas fa-language mr-2"></i> हिंदी';
+    
+    // Trick the table rendering by swapping hindi/english fields in allData
+    if (typeof allData !== 'undefined') {
+       allData.forEach(item => {
+           let temp = item.hindi;
+           item.hindi = item.english;
+           item.english = temp;
+           
+           // Swap subgroup names if available in dictionary
+           if (currentLang === 'en' && dictionary[item.subgroup]) {
+               item.originalSubgroup = item.subgroup;
+               item.subgroup = dictionary[item.subgroup];
+           } else if (currentLang === 'hi' && item.originalSubgroup) {
+               item.subgroup = item.originalSubgroup;
+           }
+       });
+       
+       // Force re-render of table by simulating click on active tab
+       const activeBtn = document.querySelector('.tab-btn.active');
+       if (activeBtn) {
+           activeBtn.click();
+       } else if (typeof filterGroup === 'function') {
+           filterGroup('all', document.querySelector('.tab-btn[data-group="all"]'));
+       }
+    }
+  }
+
+  // Inject a button into the header
+  window.addEventListener('DOMContentLoaded', () => {
+    const btnContainer = document.querySelector('.flex.items-center.justify-center.gap-2.no-print');
+    if (btnContainer) {
+      const toggleBtn = document.createElement('button');
+      toggleBtn.id = 'langToggleBtn';
+      toggleBtn.className = 'tab-btn text-sm bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 hover:text-purple-300 border border-purple-500/30';
+      toggleBtn.innerHTML = '<i class="fas fa-language mr-2"></i> English';
+      toggleBtn.onclick = toggleLanguage;
+      btnContainer.appendChild(toggleBtn);
+    }
+  });
+</script>
+
+
+</body>
+
+
+</html>
